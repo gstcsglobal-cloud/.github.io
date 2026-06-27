@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GST 대시보드</title>
+<title>GST Dashboard</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 :root {
@@ -16,8 +16,22 @@ body {
   background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3),#1a1a2e);
   background-size:400% 400%; animation:grad 18s ease infinite;
   min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative;
 }
 @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* 언어 버튼 (우측 상단) */
+.lang-wrap{position:absolute;top:24px;right:28px}
+.lang-btn{background:var(--glass);border:1px solid var(--glassb);color:var(--txt);
+  padding:9px 16px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px)}
+.lang-btn:hover{background:rgba(255,255,255,.12)}
+.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;
+  background:#1a2744;border:1px solid var(--glassb);border-radius:14px;
+  padding:6px;z-index:100;min-width:130px;display:none;backdrop-filter:blur(20px)}
+.lang-dropdown.open{display:block}
+.lang-item{padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600}
+.lang-item:hover{background:rgba(255,255,255,.08)}
+
 .logo { font-size:42px; font-weight:900;
   background:linear-gradient(90deg,#00cec9,#6c5ce7,#fd79a8);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
@@ -42,19 +56,49 @@ body {
 </style>
 </head>
 <body>
+  <div class="lang-wrap">
+    <button class="lang-btn" onclick="toggleLang()">🌐 <span id="langLabel">KO</span> ▾</button>
+    <div class="lang-dropdown" id="langMenu">
+      <div class="lang-item" onclick="setLang('ko')">🇰🇷 한국어</div>
+      <div class="lang-item" onclick="setLang('en')">🇺🇸 English</div>
+      <div class="lang-item" onclick="setLang('zh')">🇨🇳 中文</div>
+      <div class="lang-item" onclick="setLang('ja')">🇯🇵 日本語</div>
+    </div>
+  </div>
+
   <div class="logo">GST Dashboard</div>
-  <div class="sub">원하는 대시보드를 선택하세요</div>
+  <div class="sub" data-i="sub">원하는 대시보드를 선택하세요</div>
   <div class="cards">
     <a href="./hr/" class="card c1">
       <div class="icon">👥</div>
-      <div class="title">인원 현황</div>
-      <div class="desc">엔지니어 교육 · 직급 · 직무<br>인터랙티브 분석</div>
+      <div class="title" data-i="hr_title">인원 현황</div>
+      <div class="desc" data-i="hr_desc">엔지니어 교육 · 직급 · 직무<br>인터랙티브 분석</div>
     </a>
     <a href="./scrubber/" class="card c2">
       <div class="icon">🌐</div>
-      <div class="title">설치 현황</div>
-      <div class="desc">글로벌 스크러버 설치<br>통합 모니터링</div>
+      <div class="title" data-i="sc_title">설치 현황</div>
+      <div class="desc" data-i="sc_desc">글로벌 스크러버 설치<br>통합 모니터링</div>
     </a>
   </div>
+
+<script>
+const T={
+  ko:{sub:'원하는 대시보드를 선택하세요',hr_title:'인원 현황',hr_desc:'엔지니어 교육 · 직급 · 직무<br>인터랙티브 분석',sc_title:'설치 현황',sc_desc:'글로벌 스크러버 설치<br>통합 모니터링'},
+  en:{sub:'Select a dashboard',hr_title:'Workforce Status',hr_desc:'Engineer training · position · role<br>interactive analysis',sc_title:'Installation Status',sc_desc:'Global scrubber installation<br>integrated monitoring'},
+  zh:{sub:'请选择仪表板',hr_title:'人员状况',hr_desc:'工程师培训 · 职级 · 职务<br>交互式分析',sc_title:'安装状况',sc_desc:'全球洗涤器安装<br>综合监控'},
+  ja:{sub:'ダッシュボードを選択',hr_title:'人員状況',hr_desc:'エンジニア教育 · 職級 · 職務<br>インタラクティブ分析',sc_title:'設置状況',sc_desc:'グローバルスクラバー設置<br>統合モニタリング'}
+};
+let LANG='ko';
+try{ if(window.name && T[window.name]) LANG=window.name; }catch(e){}
+function t(k){return (T[LANG]||T.ko)[k]||k;}
+function applyLang(){
+  document.querySelectorAll('[data-i]').forEach(el=>{el.innerHTML=t(el.getAttribute('data-i'));});
+  document.getElementById('langLabel').textContent=LANG.toUpperCase();
+}
+function setLang(l){LANG=l;try{window.name=l;}catch(e){}applyLang();document.getElementById('langMenu').classList.remove('open');}
+function toggleLang(){document.getElementById('langMenu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.lang-wrap'))document.getElementById('langMenu').classList.remove('open');});
+applyLang();
+</script>
 </body>
 </html>
