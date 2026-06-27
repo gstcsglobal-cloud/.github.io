@@ -12,8 +12,7 @@
   --bg1:#060d1f;--bg2:#0b1a35;--bg3:#0f2348;
   --a1:#38bdf8;--a2:#2dd4bf;--a3:#a78bfa;--a4:#fbbf24;--a5:#f472b6;
   --glass:rgba(255,255,255,0.06);--glassb:rgba(255,255,255,0.13);
-  --txt:#e2e8f0;--mut:#94a3b8;
-  --ok:#34d399;--bad:#fb7185;--warn:#fbbf24;
+  --txt:#e2e8f0;--mut:#94a3b8;--ok:#34d399;--bad:#fb7185;
 }
 body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
   background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3),#091528);
@@ -25,7 +24,7 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 .header h1{font-size:28px;font-weight:800;
   background:linear-gradient(90deg,#38bdf8,#2dd4bf,#a78bfa,#f472b6);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px}
-.header .sub{color:var(--muted,#94a3b8);font-size:13px;margin-top:4px}
+.header .sub{color:var(--mut);font-size:13px;margin-top:4px}
 .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .btn{border:none;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;padding:9px 18px;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .btn-grad{background:linear-gradient(90deg,var(--a1),var(--a2));color:#fff}
@@ -33,33 +32,51 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 .btn-glass{background:var(--glass);border:1px solid var(--glassb);color:var(--txt)}
 .btn-glass:hover{background:rgba(255,255,255,.1)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-
-/* LANG */
 .lang-wrap{position:relative}
-.lang-btn{background:var(--glass);border:1px solid var(--glassb);color:var(--txt);
-  padding:8px 14px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.lang-btn{background:var(--glass);border:1px solid var(--glassb);color:var(--txt);padding:8px 14px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
 .lang-btn:hover{background:rgba(255,255,255,.1)}
-.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;
-  background:#1a2744;border:1px solid var(--glassb);border-radius:14px;
-  padding:6px;z-index:100;min-width:130px;display:none;backdrop-filter:blur(20px)}
+.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#1a2744;border:1px solid var(--glassb);border-radius:14px;padding:6px;z-index:100;min-width:130px;display:none;backdrop-filter:blur(20px)}
 .lang-dropdown.open{display:block}
 .lang-item{padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
 .lang-item:hover{background:rgba(255,255,255,.08)}
 .lang-item.active{background:rgba(56,189,248,.15);color:var(--a1)}
-
-/* STATUS */
 .status{font-size:12px;color:var(--mut);margin-bottom:16px;text-align:right}
 .status.ok{color:var(--a2)}.status.err{color:var(--bad)}
 
-/* PERIOD */
-.period-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.period-bar .lbl{font-size:12px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:1px}
-.period-chips{display:flex;gap:6px;flex-wrap:wrap}
-.pchip{cursor:pointer;border:1px solid var(--glassb);background:var(--glass);color:var(--txt);
-  padding:6px 16px;border-radius:30px;font-size:12px;font-weight:700;transition:all .2s;user-select:none}
+/* DATE RANGE PANEL */
+.date-panel{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:18px 22px;margin-bottom:16px;backdrop-filter:blur(14px)}
+.date-panel-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.date-panel-top .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700;white-space:nowrap}
+.date-inputs{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.date-inputs input[type=date]{
+  background:rgba(255,255,255,.07);border:1px solid var(--glassb);
+  border-radius:12px;padding:9px 14px;color:var(--txt);font-size:13px;
+  outline:none;cursor:pointer;transition:border-color .2s;
+  color-scheme:dark;
+}
+.date-inputs input[type=date]:focus{border-color:var(--a1)}
+.date-sep{color:var(--mut);font-size:16px;font-weight:700}
+.apply-btn{background:linear-gradient(90deg,var(--a1),var(--a2));border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:9px 20px;transition:opacity .2s}
+.apply-btn:hover{opacity:.85}
+.reset-btn{background:rgba(255,255,255,.07);border:1px solid var(--glassb);border-radius:12px;color:var(--mut);font-size:13px;font-weight:700;cursor:pointer;padding:9px 16px;transition:all .2s}
+.reset-btn:hover{color:var(--txt);border-color:var(--glassb)}
+
+/* QUICK PRESETS */
+.preset-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.preset-row .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700;white-space:nowrap}
+.pchips{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{cursor:pointer;border:1px solid var(--glassb);background:rgba(255,255,255,.04);color:var(--txt);
+  padding:6px 15px;border-radius:30px;font-size:12px;font-weight:700;transition:all .2s;user-select:none}
 .pchip:hover{border-color:var(--a4)}
-.pchip.active{background:linear-gradient(90deg,var(--a4),var(--a5));border-color:transparent;
-  box-shadow:0 4px 16px rgba(251,191,36,.35)}
+.pchip.active{background:linear-gradient(90deg,var(--a4),var(--a5));border-color:transparent;box-shadow:0 4px 16px rgba(251,191,36,.35)}
+
+/* GRANULARITY */
+.gran-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--glassb)}
+.gran-row .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700;white-space:nowrap}
+.gran-note{font-size:11px;color:var(--mut);margin-left:6px;font-style:italic}
+
+/* DATE RANGE DISPLAY */
+.range-display{font-size:12px;color:var(--a2);font-weight:600;margin-left:auto;white-space:nowrap}
 
 /* SLICERS */
 .slicers{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
@@ -69,11 +86,9 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 .chip{cursor:pointer;border:1px solid var(--glassb);background:rgba(255,255,255,.04);color:var(--txt);
   padding:6px 14px;border-radius:30px;font-size:12px;font-weight:600;transition:all .2s;user-select:none}
 .chip:hover{transform:translateY(-2px);border-color:var(--a2)}
-.chip.active{background:linear-gradient(90deg,var(--a1),var(--a2));border-color:transparent;
-  box-shadow:0 4px 16px rgba(56,189,248,.35)}
+.chip.active{background:linear-gradient(90deg,var(--a1),var(--a2));border-color:transparent;box-shadow:0 4px 16px rgba(56,189,248,.35)}
 .search-sl{margin-left:auto}
-.search-sl input{background:rgba(255,255,255,.06);border:1px solid var(--glassb);border-radius:30px;
-  padding:8px 16px;color:var(--txt);font-size:13px;width:210px;outline:none}
+.search-sl input{background:rgba(255,255,255,.06);border:1px solid var(--glassb);border-radius:30px;padding:8px 16px;color:var(--txt);font-size:13px;width:210px;outline:none}
 .search-sl input:focus{border-color:var(--a1)}
 .search-sl input::placeholder{color:var(--mut)}
 
@@ -90,18 +105,19 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 .kpi.k4 .val{color:var(--ok)}.kpi.k5 .val{color:var(--bad)}
 .kpi .cap{color:var(--mut);font-size:11px;margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 
-/* TREND SECTION */
-.trend-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;
-  backdrop-filter:blur(14px);margin-bottom:20px}
-.trend-card h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#dfe6ff}
-.trend-wrap{position:relative;height:200px}
+/* TREND */
+.trend-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px);margin-bottom:20px}
+.trend-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.trend-header h3{font-size:14px;font-weight:700;color:#dfe6ff}
+.trend-meta{font-size:11px;color:var(--mut);background:rgba(255,255,255,.05);padding:4px 12px;border-radius:20px}
+.trend-wrap{position:relative;height:230px}
 
 /* CHARTS */
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
 .card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:18px;backdrop-filter:blur(14px)}
-.card h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#dfe6ff}
-.card .cw{position:relative;height:200px}
+.card h3{font-size:13px;font-weight:700;margin-bottom:4px;color:#dfe6ff}
+.card-note{font-size:10px;color:var(--mut);margin-bottom:10px;font-style:italic}
+.card .cw{position:relative;height:210px}
 
 /* TABLE */
 .tablecard{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px)}
@@ -119,9 +135,8 @@ tr:hover td{background:rgba(255,255,255,.04)}
 .pill.bad{background:rgba(251,113,133,.18);color:var(--bad)}
 .empty{text-align:center;padding:40px;color:var(--mut)}
 .loading{text-align:center;padding:60px;color:var(--mut);font-size:15px}
-
-@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
-@media(max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3,.grid2{grid-template-columns:1fr}}
+@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -129,15 +144,14 @@ tr:hover td{background:rgba(255,255,255,.04)}
 <div class="header">
   <div>
     <h1 data-i="title">🌐 Global Scrubber Installation Status</h1>
-    <div class="sub" data-i="sub">Integrated monitoring dashboard for installed scrubbers by customer</div>
+    <div class="sub" data-i="sub">Integrated monitoring dashboard for installed scrubbers</div>
   </div>
   <div class="header-right">
     <a href="https://gstcsglobal-cloud.github.io" class="btn btn-glass" data-i="back">← Main</a>
     <div class="btn btn-glass" style="pointer-events:none">
-      <span data-i="total_badge">Total</span> <b id="totRec">0</b> <span data-i="units">units</span>
+      <span data-i="total_badge">Total</span>&nbsp;<b id="totRec">0</b>&nbsp;<span data-i="units">units</span>
     </div>
     <button class="btn btn-grad" id="refreshBtn" onclick="loadData()">🔄 <span data-i="refresh">Refresh</span></button>
-    <!-- 언어 선택 -->
     <div class="lang-wrap">
       <button class="lang-btn" onclick="toggleLang()">🌐 <span id="langLabel">KO</span> ▾</button>
       <div class="lang-dropdown" id="langMenu">
@@ -149,18 +163,47 @@ tr:hover td{background:rgba(255,255,255,.04)}
     </div>
   </div>
 </div>
-<div class="status" id="status" data-i="loading">Loading data...</div>
+<div class="status" id="status">Loading...</div>
 
-<!-- 기간 선택 -->
-<div class="period-bar">
-  <span class="lbl" data-i="period_lbl">Period</span>
-  <div class="period-chips">
-    <div class="pchip" data-p="week" onclick="setPeriod('week')" data-i="week">Week</div>
-    <div class="pchip active" data-p="month" onclick="setPeriod('month')" data-i="month">Month</div>
-    <div class="pchip" data-p="quarter" onclick="setPeriod('quarter')" data-i="quarter">Quarter</div>
-    <div class="pchip" data-p="half" onclick="setPeriod('half')" data-i="half">Half-Year</div>
-    <div class="pchip" data-p="year" onclick="setPeriod('year')" data-i="year">Year</div>
-    <div class="pchip" data-p="all" onclick="setPeriod('all')" data-i="all">All</div>
+<!-- 기간 설정 패널 -->
+<div class="date-panel">
+  <!-- 직접 날짜 입력 -->
+  <div class="date-panel-top">
+    <span class="lbl" data-i="date_range">Date Range</span>
+    <div class="date-inputs">
+      <input type="date" id="dateFrom">
+      <span class="date-sep">~</span>
+      <input type="date" id="dateTo">
+      <button class="apply-btn" onclick="applyDateRange()" data-i="apply">Apply</button>
+      <button class="reset-btn" onclick="resetDateRange()" data-i="reset">Reset</button>
+    </div>
+    <div class="range-display" id="rangeDisplay"></div>
+  </div>
+
+  <!-- 빠른 기간 선택 -->
+  <div class="preset-row">
+    <span class="lbl" data-i="quick_select">Quick</span>
+    <div class="pchips">
+      <div class="pchip" data-q="1w" onclick="setPreset('1w')" data-i="q_1w">1 Week</div>
+      <div class="pchip" data-q="1m" onclick="setPreset('1m')" data-i="q_1m">1 Month</div>
+      <div class="pchip" data-q="3m" onclick="setPreset('3m')" data-i="q_3m">3 Months</div>
+      <div class="pchip" data-q="6m" onclick="setPreset('6m')" data-i="q_6m">6 Months</div>
+      <div class="pchip" data-q="1y" onclick="setPreset('1y')" data-i="q_1y">1 Year</div>
+      <div class="pchip active" data-q="all" onclick="setPreset('all')" data-i="q_all">All</div>
+    </div>
+  </div>
+
+  <!-- 집계 단위 -->
+  <div class="gran-row">
+    <span class="lbl" data-i="gran_lbl">View by</span>
+    <div class="pchips">
+      <div class="pchip" data-g="week" onclick="setGran('week')" data-i="g_week">Week</div>
+      <div class="pchip active" data-g="month" onclick="setGran('month')" data-i="g_month">Month</div>
+      <div class="pchip" data-g="quarter" onclick="setGran('quarter')" data-i="g_quarter">Quarter</div>
+      <div class="pchip" data-g="half" onclick="setGran('half')" data-i="g_half">Half-Year</div>
+      <div class="pchip" data-g="year" onclick="setGran('year')" data-i="g_year">Year</div>
+    </div>
+    <span class="gran-note" data-i="gran_note">↑ Trend chart aggregation unit</span>
   </div>
 </div>
 
@@ -172,7 +215,7 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="slicer"><div class="lbl">Warranty</div><div class="chips" id="sl-warr"></div></div>
   <div class="slicer search-sl">
     <div class="lbl" data-i="search_lbl">Search</div>
-    <input id="search" data-i-placeholder="search_ph">
+    <input id="search" placeholder="S/N, Location, Tool Maker...">
   </div>
 </div>
 
@@ -185,24 +228,51 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="kpi k5"><div class="ic">⚠️</div><div class="val" id="kp5">0</div><div class="cap" data-i="kp5">Warranty Expired</div></div>
 </div>
 
-<!-- 추이 차트 -->
+<!-- 누적 추이 -->
 <div class="trend-card">
-  <h3 data-i="trend_title">📈 Installation Trend (Turn On by Period)</h3>
+  <div class="trend-header">
+    <h3 data-i="trend_title">📈 Cumulative Installation Trend (Turn On)</h3>
+    <div class="trend-meta" id="trendMeta"></div>
+  </div>
   <div class="trend-wrap"><canvas id="cTrend"></canvas></div>
 </div>
 
 <!-- 차트 1행 -->
 <div class="grid3">
-  <div class="card"><h3>Country</h3><div class="cw"><canvas id="cCountry"></canvas></div></div>
-  <div class="card"><h3>Customer</h3><div class="cw"><canvas id="cCustomer"></canvas></div></div>
-  <div class="card"><h3>Warranty</h3><div class="cw"><canvas id="cWarr"></canvas></div></div>
+  <div class="card">
+    <h3>Country</h3>
+    <div class="card-note" data-i="note_rate">Bar: count · Line: share rate (%)</div>
+    <div class="cw"><canvas id="cCountry"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Customer</h3>
+    <div class="card-note" data-i="note_rate">Bar: count · Line: share rate (%)</div>
+    <div class="cw"><canvas id="cCustomer"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Warranty Status</h3>
+    <div class="card-note" data-i="note_warr">Active vs Expired ratio</div>
+    <div class="cw"><canvas id="cWarr"></canvas></div>
+  </div>
 </div>
 
 <!-- 차트 2행 -->
 <div class="grid3">
-  <div class="card"><h3>Model</h3><div class="cw"><canvas id="cModel"></canvas></div></div>
-  <div class="card"><h3>Group</h3><div class="cw"><canvas id="cGroup"></canvas></div></div>
-  <div class="card"><h3>Turn On (Year)</h3><div class="cw"><canvas id="cYear"></canvas></div></div>
+  <div class="card">
+    <h3>Model</h3>
+    <div class="card-note" data-i="note_model">Distribution by model</div>
+    <div class="cw"><canvas id="cModel"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Group</h3>
+    <div class="card-note" data-i="note_group">Distribution by process group</div>
+    <div class="cw"><canvas id="cGroup"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Turn On by Year</h3>
+    <div class="card-note" data-i="note_yoy">Bar: count · Line: YoY growth (%)</div>
+    <div class="cw"><canvas id="cYear"></canvas></div>
+  </div>
 </div>
 
 <!-- 테이블 -->
@@ -211,18 +281,12 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th data-k="code">Code</th>
-        <th data-k="sn">S/N</th>
-        <th data-k="country">Country</th>
-        <th data-k="customer">Customer</th>
-        <th data-k="location">Location</th>
-        <th data-k="fab">FAB</th>
-        <th data-k="model">Model</th>
-        <th data-k="group1">Group</th>
-        <th data-k="detail1">Detail</th>
-        <th data-k="toolMaker">Tool Maker</th>
-        <th data-k="toolModel">Tool Model</th>
-        <th data-k="turnOn">Turn On</th>
+        <th data-k="code">Code</th><th data-k="sn">S/N</th>
+        <th data-k="country">Country</th><th data-k="customer">Customer</th>
+        <th data-k="location">Location</th><th data-k="fab">FAB</th>
+        <th data-k="model">Model</th><th data-k="group1">Group</th>
+        <th data-k="detail1">Detail</th><th data-k="toolMaker">Tool Maker</th>
+        <th data-k="toolModel">Tool Model</th><th data-k="turnOn">Turn On</th>
         <th data-k="warranty">Warranty</th>
       </tr></thead>
       <tbody id="tbody"><tr><td colspan="13" class="loading">⏳ Loading...</td></tr></tbody>
@@ -231,123 +295,174 @@ tr:hover td{background:rgba(255,255,255,.04)}
 </div>
 
 <script>
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr_0-rtwnz47XAWsHUJT7acg5vgrVPe4Gk17ArnsWfnV_30Y4BJXIBRZZ1bAw33TUsqDmoz0LgzbOP/pub?gid=891608329&single=true&output=csv';
+const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vTr_0-rtwnz47XAWsHUJT7acg5vgrVPe4Gk17ArnsWfnV_30Y4BJXIBRZZ1bAw33TUsqDmoz0LgzbOP/pub?gid=891608329&single=true&output=csv';
+const CI={country:2,customer:3,location:4,code:5,sn:6,model:7,fab:9,group1:12,detail1:14,toolMaker:18,toolModel:19,turnOn:40,warranty:42};
+const PAL=['#38bdf8','#2dd4bf','#a78bfa','#fbbf24','#f472b6','#34d399','#fb7185','#60a5fa','#c084fc','#4ade80','#f97316','#e879f9'];
 
-const CI = {
-  country:2, customer:3, location:4, code:5, sn:6, model:7,
-  fab:9, group1:12, detail1:14,
-  toolMaker:18, toolModel:19,
-  turnOn:40, warranty:42
+const T={
+  ko:{title:'🌐 글로벌 스크러버 설치 현황',sub:'고객사 설치 스크러버 통합 모니터링 대시보드',
+    back:'← 메인으로',total_badge:'총',units:'대',refresh:'새로고침',
+    date_range:'기간 설정',apply:'적용',reset:'초기화',
+    quick_select:'빠른 선택',
+    q_1w:'1주',q_1m:'1개월',q_3m:'3개월',q_6m:'6개월',q_1y:'1년',q_all:'전체',
+    gran_lbl:'집계 단위',gran_note:'↑ 추이 차트 적용',
+    g_week:'주 단위',g_month:'월 단위',g_quarter:'분기 단위',g_half:'반기 단위',g_year:'연 단위',
+    search_lbl:'검색',
+    kp1:'필터 설치 대수',kp2:'설치 국가',kp3:'고객사',kp4:'Warranty 유효',kp5:'Warranty 만료',
+    trend_title:'📈 누적 설치 추이 (Turn On 기준)',
+    note_rate:'Bar: 대수 · Line: 비중(%)',note_warr:'유효/만료 비율',
+    note_model:'모델별 분포',note_group:'공정 그룹별 분포',note_yoy:'Bar: 대수 · Line: 전년비(%)',
+    tbl_title:'상세 목록',loading:'데이터 불러오는 중...',
+    warr_all:'전체',warr_ok:'유효',warr_exp:'만료',no_data:'조건에 맞는 데이터가 없습니다',
+    legend_cum:'누적',legend_new:'신규',range_all:'전체 기간'},
+  en:{title:'🌐 Global Scrubber Installation Status',sub:'Integrated monitoring dashboard for installed scrubbers',
+    back:'← Main',total_badge:'Total',units:'units',refresh:'Refresh',
+    date_range:'Date Range',apply:'Apply',reset:'Reset',
+    quick_select:'Quick Select',
+    q_1w:'1 Week',q_1m:'1 Month',q_3m:'3 Months',q_6m:'6 Months',q_1y:'1 Year',q_all:'All',
+    gran_lbl:'View By',gran_note:'↑ Trend chart unit',
+    g_week:'Week',g_month:'Month',g_quarter:'Quarter',g_half:'Half-Year',g_year:'Year',
+    search_lbl:'Search',
+    kp1:'Filtered Units',kp2:'Countries',kp3:'Customers',kp4:'Warranty Active',kp5:'Warranty Expired',
+    trend_title:'📈 Cumulative Installation Trend (Turn On)',
+    note_rate:'Bar: count · Line: rate(%)',note_warr:'Active vs Expired ratio',
+    note_model:'By model',note_group:'By process group',note_yoy:'Bar: count · Line: YoY(%)',
+    tbl_title:'Detail List',loading:'Loading...',
+    warr_all:'All',warr_ok:'Active',warr_exp:'Expired',no_data:'No data found',
+    legend_cum:'Cumulative',legend_new:'New',range_all:'All time'},
+  zh:{title:'🌐 全球洗涤器安装状况',sub:'客户安装洗涤器综合监控仪表板',
+    back:'← 主页',total_badge:'共',units:'台',refresh:'刷新',
+    date_range:'日期范围',apply:'应用',reset:'重置',
+    quick_select:'快速选择',
+    q_1w:'1周',q_1m:'1个月',q_3m:'3个月',q_6m:'6个月',q_1y:'1年',q_all:'全部',
+    gran_lbl:'聚合单位',gran_note:'↑ 趋势图适用',
+    g_week:'按周',g_month:'按月',g_quarter:'按季度',g_half:'按半年',g_year:'按年',
+    search_lbl:'搜索',
+    kp1:'过滤台数',kp2:'国家',kp3:'客户',kp4:'保修有效',kp5:'保修到期',
+    trend_title:'📈 累计安装趋势',
+    note_rate:'柱:台数·线:占比%',note_warr:'有效/到期比率',
+    note_model:'按型号',note_group:'按工艺组',note_yoy:'柱:台数·线:同比%',
+    tbl_title:'详细列表',loading:'加载中...',
+    warr_all:'全部',warr_ok:'有效',warr_exp:'到期',no_data:'无数据',
+    legend_cum:'累计',legend_new:'新增',range_all:'全部时间'},
+  ja:{title:'🌐 グローバルスクラバー設置状況',sub:'顧客設置スクラバー統合モニタリング',
+    back:'← メイン',total_badge:'合計',units:'台',refresh:'更新',
+    date_range:'期間設定',apply:'適用',reset:'リセット',
+    quick_select:'クイック選択',
+    q_1w:'1週間',q_1m:'1ヶ月',q_3m:'3ヶ月',q_6m:'6ヶ月',q_1y:'1年',q_all:'全体',
+    gran_lbl:'集計単位',gran_note:'↑ 推移チャート適用',
+    g_week:'週単位',g_month:'月単位',g_quarter:'四半期',g_half:'半期',g_year:'年単位',
+    search_lbl:'検索',
+    kp1:'フィルター台数',kp2:'設置国',kp3:'顧客',kp4:'保証有効',kp5:'保証切れ',
+    trend_title:'📈 累積設置推移',
+    note_rate:'棒:台数·線:構成比%',note_warr:'有効/切れ比率',
+    note_model:'モデル別',note_group:'工程グループ別',note_yoy:'棒:台数·線:前年比%',
+    tbl_title:'詳細リスト',loading:'読込中...',
+    warr_all:'全体',warr_ok:'有効',warr_exp:'期限切れ',no_data:'データなし',
+    legend_cum:'累積',legend_new:'新規',range_all:'全期間'}
 };
 
-const PAL = ['#38bdf8','#2dd4bf','#a78bfa','#fbbf24','#f472b6','#34d399','#fb7185','#60a5fa','#c084fc','#4ade80','#f97316','#e879f9'];
+let LANG='ko', GRAN='month', RAW=[], CHARTS={}, sortK=null, sortAsc=true;
+let DATE_FROM=null, DATE_TO=null;
+const F={country:'ALL',customer:'ALL',model:'ALL',warr:'ALL',q:''};
 
-// 번역
-const T = {
-  ko:{
-    title:'🌐 글로벌 스크러버 설치 현황', sub:'고객사 설치 스크러버 통합 모니터링 대시보드',
-    back:'← 메인으로', total_badge:'총', units:'대', refresh:'새로고침',
-    period_lbl:'기간', week:'주', month:'월', quarter:'분기', half:'반기', year:'연', all:'전체',
-    search_lbl:'검색', search_ph:'S/N, Location, Tool Maker...',
-    kp1:'필터 설치 대수', kp2:'설치 국가', kp3:'고객사', kp4:'Warranty 유효', kp5:'Warranty 만료',
-    trend_title:'📈 설치 추이 (Turn On 기준)',
-    tbl_title:'상세 목록',
-    loading:'데이터 불러오는 중...',
-    warr_all:'전체', warr_ok:'유효', warr_exp:'만료',
-    no_data:'조건에 맞는 데이터가 없습니다',
-  },
-  en:{
-    title:'🌐 Global Scrubber Installation Status', sub:'Integrated monitoring dashboard for installed scrubbers',
-    back:'← Main', total_badge:'Total', units:'units', refresh:'Refresh',
-    period_lbl:'Period', week:'Week', month:'Month', quarter:'Quarter', half:'Half-Year', year:'Year', all:'All',
-    search_lbl:'Search', search_ph:'S/N, Location, Tool Maker...',
-    kp1:'Filtered Units', kp2:'Countries', kp3:'Customers', kp4:'Warranty Active', kp5:'Warranty Expired',
-    trend_title:'📈 Installation Trend (by Turn On date)',
-    tbl_title:'Detail List',
-    loading:'Loading data...',
-    warr_all:'All', warr_ok:'Active', warr_exp:'Expired',
-    no_data:'No data found',
-  },
-  zh:{
-    title:'🌐 全球洗涤器安装状况', sub:'客户安装洗涤器综合监控仪表板',
-    back:'← 主页', total_badge:'共', units:'台', refresh:'刷新',
-    period_lbl:'周期', week:'周', month:'月', quarter:'季度', half:'半年', year:'年', all:'全部',
-    search_lbl:'搜索', search_ph:'S/N, 位置, 工具制造商...',
-    kp1:'过滤安装台数', kp2:'安装国家', kp3:'客户', kp4:'保修有效', kp5:'保修到期',
-    trend_title:'📈 安装趋势（开机日期）',
-    tbl_title:'详细列表',
-    loading:'正在加载数据...',
-    warr_all:'全部', warr_ok:'有效', warr_exp:'到期',
-    no_data:'未找到数据',
-  },
-  ja:{
-    title:'🌐 グローバルスクラバー設置状況', sub:'顧客設置スクラバー統合モニタリングダッシュボード',
-    back:'← メイン', total_badge:'合計', units:'台', refresh:'更新',
-    period_lbl:'期間', week:'週', month:'月', quarter:'四半期', half:'半期', year:'年', all:'全体',
-    search_lbl:'検索', search_ph:'S/N, 場所, ツールメーカー...',
-    kp1:'フィルター台数', kp2:'設置国', kp3:'顧客', kp4:'保証有効', kp5:'保証切れ',
-    trend_title:'📈 設置推移（Turn On基準）',
-    tbl_title:'詳細リスト',
-    loading:'データ読み込み中...',
-    warr_all:'全体', warr_ok:'有効', warr_exp:'期限切れ',
-    no_data:'データが見つかりません',
-  }
-};
+Chart.defaults.color='#94a3b8';
+Chart.defaults.font.family="'Segoe UI','Malgun Gothic',sans-serif";
 
-let LANG = 'ko', PERIOD = 'month', RAW = [], CHARTS = {}, sortK = null, sortAsc = true;
-const F = { country:'ALL', customer:'ALL', model:'ALL', warr:'ALL', q:'' };
+function t(k){return(T[LANG]||T.ko)[k]||k;}
 
-Chart.defaults.color = '#94a3b8';
-Chart.defaults.font.family = "'Segoe UI','Malgun Gothic',sans-serif";
-
-// 언어
-function t(k){ return (T[LANG]||T.ko)[k] || k; }
 function applyLang(){
-  document.querySelectorAll('[data-i]').forEach(el => {
-    const k = el.getAttribute('data-i');
-    if(el.tagName==='INPUT') el.placeholder = t(k);
-    else el.textContent = t(k);
-  });
-  document.querySelectorAll('[data-i-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i-placeholder'));
-  });
-  document.getElementById('langLabel').textContent = LANG.toUpperCase();
-  // 워런티 슬라이서 재생성
-  if(RAW.length) buildWarrChips();
+  document.querySelectorAll('[data-i]').forEach(el=>{el.textContent=t(el.getAttribute('data-i'));});
+  document.getElementById('langLabel').textContent=LANG.toUpperCase();
+  document.getElementById('search').placeholder='S/N, Location, Tool Maker...';
+  updateRangeDisplay();
+  if(RAW.length){buildWarrChips();render();}
 }
-function setLang(l){ LANG=l; applyLang(); document.getElementById('langMenu').classList.remove('open'); }
-function toggleLang(){ document.getElementById('langMenu').classList.toggle('open'); }
-document.addEventListener('click', e=>{ if(!e.target.closest('.lang-wrap')) document.getElementById('langMenu').classList.remove('open'); });
+function setLang(l){LANG=l;applyLang();document.getElementById('langMenu').classList.remove('open');}
+function toggleLang(){document.getElementById('langMenu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.lang-wrap'))document.getElementById('langMenu').classList.remove('open');});
 
-// 기간
-function setPeriod(p){
-  PERIOD=p;
-  document.querySelectorAll('.pchip').forEach(c=>c.classList.toggle('active', c.dataset.p===p));
-  if(RAW.length) render();
+// 집계 단위
+function setGran(g){
+  GRAN=g;
+  document.querySelectorAll('[data-g]').forEach(c=>c.classList.toggle('active',c.dataset.g===g));
+  if(RAW.length)render();
+}
+
+// 날짜 직접 설정
+function applyDateRange(){
+  const from=document.getElementById('dateFrom').value;
+  const to=document.getElementById('dateTo').value;
+  if(from) DATE_FROM=new Date(from);
+  if(to){ DATE_TO=new Date(to); DATE_TO.setHours(23,59,59,999); }
+  // 프리셋 해제
+  document.querySelectorAll('[data-q]').forEach(c=>c.classList.remove('active'));
+  updateRangeDisplay();
+  if(RAW.length)render();
+}
+
+function resetDateRange(){
+  DATE_FROM=null; DATE_TO=null;
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  document.querySelectorAll('[data-q]').forEach(c=>c.classList.toggle('active',c.dataset.q==='all'));
+  updateRangeDisplay();
+  if(RAW.length)render();
+}
+
+// 빠른 프리셋
+function setPreset(q){
+  const now=new Date();
+  DATE_TO=new Date(now); DATE_TO.setHours(23,59,59,999);
+  if(q==='all'){ DATE_FROM=null; DATE_TO=null; }
+  else{
+    DATE_FROM=new Date();
+    if(q==='1w') DATE_FROM.setDate(now.getDate()-7);
+    else if(q==='1m') DATE_FROM.setMonth(now.getMonth()-1);
+    else if(q==='3m') DATE_FROM.setMonth(now.getMonth()-3);
+    else if(q==='6m') DATE_FROM.setMonth(now.getMonth()-6);
+    else if(q==='1y') DATE_FROM.setFullYear(now.getFullYear()-1);
+  }
+  // input 동기화
+  if(DATE_FROM) document.getElementById('dateFrom').value=DATE_FROM.toISOString().slice(0,10);
+  else document.getElementById('dateFrom').value='';
+  if(DATE_TO && q!=='all') document.getElementById('dateTo').value=DATE_TO.toISOString().slice(0,10);
+  else document.getElementById('dateTo').value='';
+
+  document.querySelectorAll('[data-q]').forEach(c=>c.classList.toggle('active',c.dataset.q===q));
+  updateRangeDisplay();
+  if(RAW.length)render();
+}
+
+function updateRangeDisplay(){
+  const el=document.getElementById('rangeDisplay');
+  if(!DATE_FROM&&!DATE_TO){ el.textContent=t('range_all'); return; }
+  const f=DATE_FROM?DATE_FROM.toISOString().slice(0,10):'...';
+  const t2=DATE_TO?DATE_TO.toISOString().slice(0,10):'...';
+  el.textContent=`📅 ${f} ~ ${t2}`;
 }
 
 function toDate(v){
   if(!v||v==='')return null;
   const n=Number(v);
-  if(!isNaN(n)&&n>20000&&n<80000) return new Date(Date.UTC(1899,11,30)+n*86400000);
-  const d=new Date(v); return isNaN(d)?null:d;
+  if(!isNaN(n)&&n>20000&&n<80000)return new Date(Date.UTC(1899,11,30)+n*86400000);
+  const d=new Date(v);return isNaN(d)?null:d;
 }
-function fmtDate(d){ return d?d.toISOString().slice(0,10):'—'; }
-function cell(r,k){ const v=r[CI[k]]; return (v!==undefined&&v!=='')?v:'—'; }
+function fmtDate(d){return d?d.toISOString().slice(0,10):'—';}
+function cell(r,k){const v=r[CI[k]];return(v!==undefined&&v!=='')?v:'—';}
 
 async function loadData(){
   const btn=document.getElementById('refreshBtn');
   const status=document.getElementById('status');
-  btn.disabled=true;
-  status.className='status'; status.textContent=t('loading');
+  btn.disabled=true; status.className='status'; status.textContent=t('loading');
   try{
     const res=await fetch(SHEET_URL+'&t='+Date.now());
     const text=await res.text();
     const parsed=Papa.parse(text,{skipEmptyLines:true});
     RAW=parsed.data.slice(1).filter(r=>r[CI.code]&&String(r[CI.code]).trim()!=='');
     document.getElementById('totRec').textContent=RAW.length;
-    const now=new Date().toLocaleString('ko-KR');
-    status.className='status ok'; status.textContent='✅ '+now+' · '+RAW.length+(LANG==='ko'?'대 로드 완료':' units loaded');
+    status.className='status ok';
+    status.textContent='✅ '+new Date().toLocaleString('ko-KR')+' · '+RAW.length+' '+t('units');
     rebuildFilters(); render();
   }catch(e){
     status.className='status err'; status.textContent='❌ '+e.message;
@@ -355,83 +470,155 @@ async function loadData(){
   btn.disabled=false;
 }
 
-function uniqCol(idx){
-  return Array.from(new Set(RAW.map(r=>(r[idx]||'').trim()).filter(Boolean))).sort();
-}
+function uniqCol(idx){return Array.from(new Set(RAW.map(r=>(r[idx]||'').trim()).filter(Boolean))).sort();}
 
-function buildChips(id, key, idx, allLabel){
+function buildChips(id,key,idx){
   const box=document.getElementById(id); box.innerHTML='';
   ['ALL',...uniqCol(idx)].forEach(v=>{
     const c=document.createElement('div');
     c.className='chip'+(F[key]===v?' active':'');
-    c.textContent=v==='ALL'?(allLabel||'ALL'):v;
-    c.onclick=()=>{ F[key]=v; [...box.children].forEach(x=>x.classList.remove('active')); c.classList.add('active'); render(); };
+    c.textContent=v==='ALL'?'ALL':v;
+    c.onclick=()=>{F[key]=v;[...box.children].forEach(x=>x.classList.remove('active'));c.classList.add('active');render();};
     box.appendChild(c);
   });
 }
-
 function buildWarrChips(){
   const box=document.getElementById('sl-warr'); box.innerHTML='';
-  [{v:'ALL',l:t('warr_all')},{v:'active',l:t('warr_ok')},{v:'expired',l:t('warr_exp')}].forEach(({v,l})=>{
+  [{v:'ALL',l:'ALL'},{v:'active',l:t('warr_ok')},{v:'expired',l:t('warr_exp')}].forEach(({v,l})=>{
     const c=document.createElement('div');
     c.className='chip'+(F.warr===v?' active':''); c.textContent=l;
-    c.onclick=()=>{ F.warr=v; [...box.children].forEach(x=>x.classList.remove('active')); c.classList.add('active'); render(); };
+    c.onclick=()=>{F.warr=v;[...box.children].forEach(x=>x.classList.remove('active'));c.classList.add('active');render();};
     box.appendChild(c);
   });
 }
-
 function rebuildFilters(){
-  F.country='ALL'; F.customer='ALL'; F.model='ALL'; F.warr='ALL'; F.q='';
+  F.country='ALL';F.customer='ALL';F.model='ALL';F.warr='ALL';F.q='';
   document.getElementById('search').value='';
   buildChips('sl-country','country',CI.country);
   buildChips('sl-customer','customer',CI.customer);
   buildChips('sl-model','model',CI.model);
   buildWarrChips();
 }
-
-document.getElementById('search').addEventListener('input',e=>{ F.q=e.target.value.toLowerCase(); render(); });
+document.getElementById('search').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();render();});
 
 function filt(){
   const now=new Date();
-  // 기간 필터
-  let periodStart=null;
-  if(PERIOD!=='all'){
-    periodStart=new Date();
-    if(PERIOD==='week') periodStart.setDate(periodStart.getDate()-7);
-    else if(PERIOD==='month') periodStart.setMonth(periodStart.getMonth()-1);
-    else if(PERIOD==='quarter') periodStart.setMonth(periodStart.getMonth()-3);
-    else if(PERIOD==='half') periodStart.setMonth(periodStart.getMonth()-6);
-    else if(PERIOD==='year') periodStart.setFullYear(periodStart.getFullYear()-1);
-  }
   return RAW.filter(r=>{
-    if(F.country!=='ALL'&&(r[CI.country]||'').trim()!==F.country) return false;
-    if(F.customer!=='ALL'&&(r[CI.customer]||'').trim()!==F.customer) return false;
-    if(F.model!=='ALL'&&(r[CI.model]||'').trim()!==F.model) return false;
-    if(F.warr!=='ALL'){
-      const w=toDate(r[CI.warranty]);
-      if(F.warr==='active'&&!(w&&w>=now)) return false;
-      if(F.warr==='expired'&&!(w&&w<now)) return false;
-    }
-    if(F.q&&!r.join(' ').toLowerCase().includes(F.q)) return false;
-    if(periodStart){ const d=toDate(r[CI.turnOn]); if(!d||d<periodStart) return false; }
+    if(F.country!=='ALL'&&(r[CI.country]||'').trim()!==F.country)return false;
+    if(F.customer!=='ALL'&&(r[CI.customer]||'').trim()!==F.customer)return false;
+    if(F.model!=='ALL'&&(r[CI.model]||'').trim()!==F.model)return false;
+    if(F.warr!=='ALL'){const w=toDate(r[CI.warranty]);
+      if(F.warr==='active'&&!(w&&w>=now))return false;
+      if(F.warr==='expired'&&!(w&&w<now))return false;}
+    if(F.q&&!r.join(' ').toLowerCase().includes(F.q))return false;
+    // 날짜 범위 필터 (Turn On 기준)
+    const d=toDate(r[CI.turnOn]);
+    if(DATE_FROM&&(!d||d<DATE_FROM))return false;
+    if(DATE_TO&&(!d||d>DATE_TO))return false;
     return true;
   });
 }
 
 function countBy(rows,idx){
   const m={};
-  rows.forEach(r=>{ const k=(r[idx]||'N/A').toString().trim()||'N/A'; m[k]=(m[k]||0)+1; });
+  rows.forEach(r=>{const k=(r[idx]||'N/A').toString().trim()||'N/A';m[k]=(m[k]||0)+1;});
   return Object.entries(m).sort((a,b)=>b[1]-a[1]);
 }
 
-function mkBar(id,labels,data,color,label2){
+// 집계 단위별 키 생성
+function granKey(d){
+  if(GRAN==='week'){
+    const jan1=new Date(d.getFullYear(),0,1);
+    const w=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+    return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
+  }
+  if(GRAN==='month') return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  if(GRAN==='quarter') return `${d.getFullYear()}-Q${Math.ceil((d.getMonth()+1)/3)}`;
+  if(GRAN==='half') return `${d.getFullYear()}-H${d.getMonth()<6?1:2}`;
+  if(GRAN==='year') return `${d.getFullYear()}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+// 누적 추이 (전체 RAW 기준 누적 + 필터된 신규)
+function getCumulativeTrend(filtered){
+  const allDated=RAW.map(r=>toDate(r[CI.turnOn])).filter(Boolean).sort((a,b)=>a-b);
+  if(!allDated.length)return{labels:[],cumData:[],newData:[]};
+
+  // 전체 기간 라벨
+  const labelSet=new Set();
+  allDated.forEach(d=>labelSet.add(granKey(d)));
+  const labels=Array.from(labelSet).sort();
+
+  // 전체 신규
+  const allMap={};
+  allDated.forEach(d=>{const k=granKey(d);allMap[k]=(allMap[k]||0)+1;});
+
+  // 누적
+  let cum=0;
+  const cumData=labels.map(l=>{cum+=(allMap[l]||0);return cum;});
+
+  // 필터된 신규
+  const filtMap={};
+  filtered.forEach(r=>{const d=toDate(r[CI.turnOn]);if(d){const k=granKey(d);filtMap[k]=(filtMap[k]||0)+1;}});
+  const newData=labels.map(l=>filtMap[l]||0);
+
+  // 추이 메타 정보
+  const meta=document.getElementById('trendMeta');
+  const granNames={week:t('g_week'),month:t('g_month'),quarter:t('g_quarter'),half:t('g_half'),year:t('g_year')};
+  meta.textContent=`${granNames[GRAN]} | ${labels[0]||''} ~ ${labels[labels.length-1]||''}`;
+
+  return{labels,cumData,newData};
+}
+
+// 차트 함수들
+function mkTrend(labels,cumData,newData){
+  const ctx=document.getElementById('cTrend');
+  const cfg={type:'bar',data:{labels,datasets:[
+    {type:'line',label:t('legend_cum'),data:cumData,borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.12)',
+     fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#38bdf8',pointBorderColor:'#fff',pointBorderWidth:1.5,yAxisID:'y'},
+    {type:'bar',label:t('legend_new'),data:newData,backgroundColor:'rgba(251,191,36,0.6)',borderRadius:4,yAxisID:'y'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},usePointStyle:true,pointStyle:'circle',padding:14}}},
+    scales:{x:{ticks:{color:'#94a3b8',font:{size:10},maxTicksLimit:20,maxRotation:30},grid:{display:false}},
+            y:{ticks:{color:'#94a3b8',precision:0},grid:{color:'rgba(255,255,255,.05)'}}}}};
+  if(CHARTS['cTrend']){
+    CHARTS['cTrend'].data.labels=labels;
+    CHARTS['cTrend'].data.datasets[0].data=cumData;CHARTS['cTrend'].data.datasets[0].label=t('legend_cum');
+    CHARTS['cTrend'].data.datasets[1].data=newData;CHARTS['cTrend'].data.datasets[1].label=t('legend_new');
+    CHARTS['cTrend'].update();return;
+  }
+  CHARTS['cTrend']=new Chart(ctx,cfg);
+}
+
+function mkCombo(id,labels,counts,total){
+  const rates=counts.map(c=>total?Math.round(c/total*1000)/10:0);
   const ctx=document.getElementById(id);
-  const cfg={type:'bar',data:{labels,datasets:[{label:label2||'',data,backgroundColor:color,borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#94a3b8',maxRotation:35,font:{size:10}},grid:{display:false}},
-              y:{ticks:{color:'#94a3b8',precision:0},grid:{color:'rgba(255,255,255,.05)'}}}}};
-  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;CHARTS[id].data.datasets[0].backgroundColor=color;CHARTS[id].update();return;}
+  const cfg={type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Count',data:counts,backgroundColor:'rgba(56,189,248,0.7)',borderRadius:5,yAxisID:'y'},
+    {type:'line',label:'Rate(%)',data:rates,borderColor:'#fbbf24',backgroundColor:'transparent',
+     fill:false,tension:.4,pointRadius:4,pointBackgroundColor:'#fbbf24',pointBorderColor:'#fff',pointBorderWidth:2,yAxisID:'y2'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:10},usePointStyle:true,pointStyle:'circle',padding:8}}},
+    scales:{x:{ticks:{color:'#94a3b8',font:{size:10},maxRotation:35},grid:{display:false}},
+      y:{position:'left',ticks:{color:'#94a3b8',precision:0},grid:{color:'rgba(255,255,255,.05)'}},
+      y2:{position:'right',ticks:{color:'#fbbf24',callback:v=>v+'%'},grid:{display:false}}}}};
+  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=counts;CHARTS[id].data.datasets[1].data=rates;CHARTS[id].update();return;}
+  CHARTS[id]=new Chart(ctx,cfg);
+}
+
+function mkYoY(id,labels,data){
+  const rates=data.map((v,i)=>i===0||data[i-1]===0?0:Math.round((v-data[i-1])/data[i-1]*1000)/10);
+  const ctx=document.getElementById(id);
+  const cfg={type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Turn On',data,backgroundColor:'rgba(167,139,250,0.7)',borderRadius:5,yAxisID:'y'},
+    {type:'line',label:'YoY(%)',data:rates,borderColor:'#34d399',backgroundColor:'transparent',
+     fill:false,tension:.3,pointRadius:4,pointBackgroundColor:'#34d399',pointBorderColor:'#fff',pointBorderWidth:2,yAxisID:'y2'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:10},usePointStyle:true,pointStyle:'circle',padding:8}}},
+    scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}},
+      y:{position:'left',ticks:{color:'#94a3b8',precision:0},grid:{color:'rgba(255,255,255,.05)'}},
+      y2:{position:'right',ticks:{color:'#34d399',callback:v=>v+'%'},grid:{display:false}}}}};
+  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;CHARTS[id].data.datasets[1].data=rates;CHARTS[id].update();return;}
   CHARTS[id]=new Chart(ctx,cfg);
 }
 
@@ -441,48 +628,21 @@ function mkDonut(id,labels,data,colors){
     options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
       plugins:{legend:{position:'right',labels:{color:'#cbd5e1',font:{size:10},padding:8,usePointStyle:true,pointStyle:'circle'}}},
       animation:{animateScale:true}}};
-  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;CHARTS[id].data.datasets[0].backgroundColor=colors||PAL;CHARTS[id].update();return;}
+  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;if(colors)CHARTS[id].data.datasets[0].backgroundColor=colors;CHARTS[id].update();return;}
   CHARTS[id]=new Chart(ctx,cfg);
-}
-
-function mkLine(id,labels,data){
-  const ctx=document.getElementById(id);
-  const cfg={type:'line',data:{labels,datasets:[{
-    label:'Turn On',data,
-    borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.15)',
-    fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#38bdf8',pointBorderColor:'#fff',pointBorderWidth:2
-  }]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
-            y:{ticks:{color:'#94a3b8',precision:0},grid:{color:'rgba(255,255,255,.05)'}}}}};
-  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;CHARTS[id].update();return;}
-  CHARTS[id]=new Chart(ctx,cfg);
-}
-
-function getTrendData(rows){
-  const now=new Date(); const m={};
-  let fmt, count=12;
-  if(PERIOD==='week'||PERIOD==='month'){ fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; count=PERIOD==='week'?7:30; }
-  else if(PERIOD==='quarter'){ fmt=d=>`${d.getFullYear()}-W${String(Math.ceil(d.getDate()/7)).padStart(2,'0')}`; count=13; }
-  else if(PERIOD==='half'){ fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; count=6; }
-  else{ fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-
-  rows.forEach(r=>{ const d=toDate(r[CI.turnOn]); if(d){ const k=fmt(d); m[k]=(m[k]||0)+1; }});
-  const keys=Object.keys(m).sort();
-  return {labels:keys, data:keys.map(k=>m[k])};
 }
 
 function animVal(el,target){
-  const start=parseFloat(el.dataset.v||0); const t0=performance.now();
-  function step(t){ const p=Math.min((t-t0)/500,1); const cur=start+(target-start)*(1-Math.pow(1-p,3));
-    el.textContent=Math.round(cur); if(p<1)requestAnimationFrame(step); else el.dataset.v=target; }
+  const start=parseFloat(el.dataset.v||0);const t0=performance.now();
+  function step(t){const p=Math.min((t-t0)/500,1);const cur=start+(target-start)*(1-Math.pow(1-p,3));
+    el.textContent=Math.round(cur);if(p<1)requestAnimationFrame(step);else el.dataset.v=target;}
   requestAnimationFrame(step);
 }
 
 function render(){
-  const f=filt(); const now=new Date();
+  const f=filt();const now=new Date();
   let active=0,expired=0;
-  f.forEach(r=>{ const w=toDate(r[CI.warranty]); if(w){w>=now?active++:expired++;} });
+  f.forEach(r=>{const w=toDate(r[CI.warranty]);if(w){w>=now?active++:expired++;}});
 
   animVal(document.getElementById('kp1'),f.length);
   animVal(document.getElementById('kp2'),new Set(f.map(r=>(r[CI.country]||'').trim()).filter(Boolean)).size);
@@ -490,38 +650,33 @@ function render(){
   animVal(document.getElementById('kp4'),active);
   animVal(document.getElementById('kp5'),expired);
 
-  // 추이
-  const trend=getTrendData(f);
-  mkLine('cTrend',trend.labels,trend.data);
+  const trend=getCumulativeTrend(f);
+  mkTrend(trend.labels,trend.cumData,trend.newData);
 
-  // 차트
   const ctry=countBy(f,CI.country).slice(0,10);
-  mkBar('cCountry',ctry.map(x=>x[0]),ctry.map(x=>x[1]),'#38bdf8');
+  mkCombo('cCountry',ctry.map(x=>x[0]),ctry.map(x=>x[1]),f.length);
   const cust=countBy(f,CI.customer).slice(0,10);
-  mkBar('cCustomer',cust.map(x=>x[0]),cust.map(x=>x[1]),'#2dd4bf');
+  mkCombo('cCustomer',cust.map(x=>x[0]),cust.map(x=>x[1]),f.length);
   mkDonut('cWarr',[t('warr_ok'),t('warr_exp')],[active,expired],['#34d399','#fb7185']);
   const mdl=countBy(f,CI.model).slice(0,8);
   mkDonut('cModel',mdl.map(x=>x[0]),mdl.map(x=>x[1]));
   const grp=countBy(f,CI.group1).slice(0,8);
   mkDonut('cGroup',grp.map(x=>x[0]),grp.map(x=>x[1]));
   const yrs={};
-  f.forEach(r=>{ const d=toDate(r[CI.turnOn]); if(d){const y=d.getUTCFullYear(); yrs[y]=(yrs[y]||0)+1;} });
+  f.forEach(r=>{const d=toDate(r[CI.turnOn]);if(d){const y=d.getUTCFullYear();yrs[y]=(yrs[y]||0)+1;}});
   const yk=Object.keys(yrs).sort();
-  mkBar('cYear',yk,yk.map(y=>yrs[y]),'#a78bfa');
+  mkYoY('cYear',yk,yk.map(y=>yrs[y]));
 
-  // 테이블
   document.getElementById('tblCnt').textContent=f.length;
   let d=[...f];
-  if(sortK) d.sort((a,b)=>{
-    const x=(a[CI[sortK]]||'')+'', y=(b[CI[sortK]]||'')+'';
-    return sortAsc?x.localeCompare(y,'ko',{numeric:true}):y.localeCompare(x,'ko',{numeric:true});
-  });
+  if(sortK)d.sort((a,b)=>{const x=(a[CI[sortK]]||'')+'',y2=(b[CI[sortK]]||'')+'';
+    return sortAsc?x.localeCompare(y2,'ko',{numeric:true}):y2.localeCompare(x,'ko',{numeric:true});});
   const tbody=document.getElementById('tbody');
   if(!d.length){tbody.innerHTML=`<tr><td colspan="13" class="empty">${t('no_data')}</td></tr>`;return;}
   tbody.innerHTML=d.map(r=>{
-    const w=toDate(r[CI.warranty]); const ok=w&&w>=now;
+    const w=toDate(r[CI.warranty]);const ok=w&&w>=now;
     const wp=w?`<span class="pill ${ok?'ok':'bad'}">${fmtDate(w)}</span>`:'—';
-    return `<tr>
+    return`<tr>
       <td>${cell(r,'code')}</td><td>${cell(r,'sn')}</td><td>${cell(r,'country')}</td>
       <td>${cell(r,'customer')}</td><td>${cell(r,'location')}</td><td>${cell(r,'fab')}</td>
       <td>${cell(r,'model')}</td><td>${cell(r,'group1')}</td><td>${cell(r,'detail1')}</td>
@@ -532,9 +687,9 @@ function render(){
 }
 
 document.addEventListener('click',e=>{
-  const th=e.target.closest('th[data-k]'); if(!th)return;
+  const th=e.target.closest('th[data-k]');if(!th)return;
   const k=th.dataset.k;
-  if(sortK===k)sortAsc=!sortAsc; else{sortK=k;sortAsc=true;}
+  if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=true;}
   render();
 });
 
