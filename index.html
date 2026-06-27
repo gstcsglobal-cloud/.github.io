@@ -9,7 +9,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 :root{
   --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
-  --accent:#6c5ce7; --accent2:#00cec9; --accent3:#fd79a8; --accent4:#ffeaa7;
+  --accent:#6c5ce7; --accent2:#00cec9; --accent3:#fd79a8;
   --glass:rgba(255,255,255,0.07); --glassb:rgba(255,255,255,0.12);
   --txt:#f5f6fa; --muted:#a0a0c0;
 }
@@ -23,7 +23,17 @@ body{
 .header h1{font-size:32px;font-weight:800;background:linear-gradient(90deg,#00cec9,#6c5ce7,#fd79a8);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px}
 .header .sub{color:var(--muted);font-size:13px;margin-top:4px}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .badge{background:var(--glass);border:1px solid var(--glassb);border-radius:30px;padding:8px 18px;font-size:13px;backdrop-filter:blur(10px)}
+.refresh-btn{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border:none;border-radius:30px;color:#fff;font-size:13px;
+  font-weight:700;cursor:pointer;padding:9px 20px;transition:opacity .2s;
+}
+.refresh-btn:hover{opacity:.85}
+.refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+.status{font-size:12px;color:var(--muted);margin-bottom:16px;text-align:right;}
+.status.ok{color:var(--accent2)} .status.err{color:#fd79a8}
 .slicers{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:24px}
 .slicer{background:var(--glass);border:1px solid var(--glassb);border-radius:18px;padding:14px 18px;backdrop-filter:blur(12px)}
 .slicer .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;font-weight:700}
@@ -42,8 +52,8 @@ body{
   position:relative;overflow:hidden;transition:transform .3s}
 .kpi:hover{transform:translateY(-5px)}
 .kpi::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;opacity:.35}
-.kpi.k1::before{background:var(--accent)} .kpi.k2::before{background:var(--accent2)}
-.kpi.k3::before{background:var(--accent3)} .kpi.k4::before{background:#fdcb6e}
+.kpi.k1::before{background:var(--accent)}.kpi.k2::before{background:var(--accent2)}
+.kpi.k3::before{background:var(--accent3)}.kpi.k4::before{background:#fdcb6e}
 .kpi .ic{font-size:22px;margin-bottom:8px}
 .kpi .val{font-size:38px;font-weight:800;line-height:1}
 .kpi .cap{color:var(--muted);font-size:13px;margin-top:8px;font-weight:600}
@@ -65,6 +75,7 @@ tr:hover td{background:rgba(255,255,255,.04)}
 .tw{max-height:360px;overflow-y:auto;border-radius:12px}
 .tw::-webkit-scrollbar{width:8px}.tw::-webkit-scrollbar-thumb{background:var(--glassb);border-radius:4px}
 .empty{text-align:center;padding:30px;color:var(--muted)}
+.loading{text-align:center;padding:60px;color:var(--muted);font-size:15px}
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -74,8 +85,12 @@ tr:hover td{background:rgba(255,255,255,.04)}
     <h1>인력 현황 대시보드</h1>
     <div class="sub">엔지니어 교육 · 직급 · 직무 인터랙티브 분석</div>
   </div>
-  <div class="badge">총 <b id="totRec">0</b>명 · 실시간 필터</div>
+  <div class="header-right">
+    <div class="badge">총 <b id="totRec">0</b>명 · 실시간 필터</div>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadData()">🔄 새로고침</button>
+  </div>
 </div>
+<div class="status" id="status">데이터 불러오는 중...</div>
 
 <div class="slicers">
   <div class="slicer"><div class="lbl">직급</div><div class="chips" id="sl-pos"></div></div>
@@ -102,84 +117,176 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <h3>상세 명단 (<span id="tblCnt">0</span>명)</h3>
   <div class="tw"><table>
     <thead><tr><th>#</th><th>이름</th><th>입사일</th><th>경력</th><th>직급</th><th>직무</th><th>Basic</th><th>Veteran</th><th>비고</th></tr></thead>
-    <tbody id="tbody"></tbody>
+    <tbody id="tbody"><tr><td colspan="9" class="loading">⏳ 데이터 불러오는 중...</td></tr></tbody>
   </table></div>
 </div>
 
 <script>
-const DATA = [{"no":4,"name":"Devin","join":"2022-08-01","exp":"3Y10M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":"8/15 이수완료"},{"no":5,"name":"Pengren","join":"2022-08-22","exp":"3Y10M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":6,"name":"CJ","join":"2023-03-13","exp":"3Y3M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":"8/7~8/8"},{"no":7,"name":"Ben","join":"2024-04-01","exp":"2Y2M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":8,"name":"Jiaming","join":"2024-04-15","exp":"2Y2M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":"8/7~8/8"},{"no":9,"name":"Albert","join":"2024-07-29","exp":"1Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":"8/5~8/6"},{"no":10,"name":"Alan","join":"2024-08-26","exp":"1Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":11,"name":"York","join":"2024-10-15","exp":"1Y8M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":12,"name":"Danny","join":"2024-11-05","exp":"1Y7M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":13,"name":"Seven","join":"2024-12-02","exp":"1Y6M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":14,"name":"Eric","join":"2024-12-16","exp":"1Y6M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":15,"name":"Hank","join":"2024-12-16","exp":"1Y6M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":16,"name":"James","join":"2025-02-17","exp":"1Y4M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":17,"name":"Daniel","join":"2025-02-17","exp":"1Y4M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":18,"name":"Ming","join":"2025-03-10","exp":"1Y3M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":19,"name":"Dave","join":"2025-03-10","exp":"1Y3M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":20,"name":"Ringo","join":"2025-03-25","exp":"1Y3M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":21,"name":"Gio","join":"2025-04-07","exp":"1Y2M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":22,"name":"Ian","join":"2025-04-07","exp":"1Y2M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":23,"name":"Ethan","join":"2025-04-07","exp":"1Y2M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":24,"name":"Willy","join":"2025-04-21","exp":"1Y2M","pos":"Site leader","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":25,"name":"Pin","join":"2025-04-21","exp":"1Y2M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":26,"name":"Sam","join":"2025-04-21","exp":"1Y2M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":27,"name":"Andy","join":"2025-04-28","exp":"1Y1M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":"8/5~8/6"},{"no":28,"name":"Nick","join":"2025-05-05","exp":"1Y1M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":29,"name":"Frank","join":"2025-05-05","exp":"1Y1M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":30,"name":"Justino","join":"2025-05-19","exp":"1Y1M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":31,"name":"Wilson","join":"2025-06-16","exp":"1Y0M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"이수완료","note":""},{"no":32,"name":"Woochul","join":"2025-07-08","exp":"0Y11M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":""},{"no":33,"name":"Kevin","join":"2025-07-08","exp":"0Y11M","pos":"Assistant Engineer","job":"SCR'/CHI'","basic":"이수완료","vet":"비대상","note":""},{"no":34,"name":"Mason","join":"2025-07-21","exp":"0Y11M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"7/22~7/24 완료"},{"no":35,"name":"Pole","join":"2025-07-21","exp":"0Y11M","pos":"Assistant Engineer","job":"SCR'/CHI'","basic":"이수완료","vet":"비대상","note":"7/22~7/24 완료"},{"no":36,"name":"Will","join":"2025-07-21","exp":"0Y11M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"7/22~7/24 완료"},{"no":37,"name":"Task","join":"2025-07-21","exp":"0Y11M","pos":"Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"7/22~7/24 완료"},{"no":38,"name":"Tom","join":"2025-08-11","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/15 완료"},{"no":39,"name":"Brian","join":"2025-08-11","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/15 완료"},{"no":40,"name":"Lin","join":"2025-08-11","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/15 완료"},{"no":41,"name":"King","join":"2025-08-11","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/15 완료"},{"no":42,"name":"Wenyen","join":"2025-08-11","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/15 완료"},{"no":43,"name":"Yan","join":"2025-08-18","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/22 완료"},{"no":44,"name":"Yi","join":"2025-08-18","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/22 완료"},{"no":45,"name":"Zhan","join":"2025-08-18","exp":"0Y10M","pos":"Assistant Engineer","job":"SCR'","basic":"이수완료","vet":"비대상","note":"8/22 완료"},{"no":46,"name":"Johnny","join":"2025-09-08","exp":"0Y9M","pos":"Assistant Engineer","job":"SCR'","basic":"진행중","vet":"비대상","note":""}];
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr_0-rtwnz47XAWsHUJT7acg5vgrVPe4Gk17ArnsWfnV_30Y4BJXIBRZZ1bAw33TUsqDmoz0LgzbOP/pub?gid=0&single=true&output=csv';
+
+let DATA = [];
 const F = {pos:'전체', job:'전체', basic:'전체', vet:'전체', q:''};
 Chart.defaults.color = '#a0a0c0';
 Chart.defaults.font.family = "'Segoe UI','Malgun Gothic',sans-serif";
 const PAL = ['#6c5ce7','#00cec9','#fd79a8','#fdcb6e','#a29bfe','#55efc4'];
 
-function uniq(k){return ['전체', ...Array.from(new Set(DATA.map(d=>d[k])))];}
-function buildChips(id,key){
-  const box=document.getElementById(id);
-  uniq(key).forEach(v=>{
-    const c=document.createElement('div');
-    c.className='chip'+(v==='전체'?' active':''); c.textContent=v;
-    c.onclick=()=>{F[key]=v; [...box.children].forEach(x=>x.classList.remove('active')); c.classList.add('active'); render();};
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,''));
+    return obj;
+  }).filter(d => d.name || d['이름']);
+}
+
+async function loadData() {
+  const btn = document.getElementById('refreshBtn');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  btn.textContent = '⏳ 불러오는 중...';
+  status.className = 'status';
+  status.textContent = '구글 시트에서 데이터 불러오는 중...';
+  try {
+    const res = await fetch(SHEET_URL + '&t=' + Date.now());
+    const text = await res.text();
+    const rows = parseCSV(text);
+    // 컬럼명 자동 매핑
+    const colMap = {
+      no: ['no','번호','No','NO'],
+      name: ['name','이름','성명'],
+      join: ['join','입사일'],
+      exp: ['exp','경력'],
+      pos: ['pos','직급','position'],
+      job: ['job','직무'],
+      basic: ['basic','Basic','Basic교육','basic교육'],
+      vet: ['vet','veteran','Veteran','Veteran교육'],
+      note: ['note','비고']
+    };
+    DATA = rows.map(row => {
+      const mapped = {};
+      for (const [key, aliases] of Object.entries(colMap)) {
+        const found = aliases.find(a => row[a] !== undefined);
+        mapped[key] = found ? String(row[found]).trim() : '';
+      }
+      return mapped;
+    }).filter(d => d.name);
+
+    const now = new Date().toLocaleString('ko-KR');
+    status.className = 'status ok';
+    status.textContent = '✅ 마지막 업데이트: ' + now + ' · ' + DATA.length + '명';
+    rebuildFilters();
+    render();
+  } catch(err) {
+    status.className = 'status err';
+    status.textContent = '❌ 데이터를 불러오지 못했습니다. 구글 시트 공개 설정을 확인해주세요.';
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="9" class="empty">데이터 로드 실패</td></tr>';
+  }
+  btn.disabled = false;
+  btn.textContent = '🔄 새로고침';
+}
+
+function uniq(k) { return ['전체', ...Array.from(new Set(DATA.map(d => d[k]).filter(Boolean)))]; }
+
+function buildChips(id, key) {
+  const box = document.getElementById(id);
+  box.innerHTML = '';
+  uniq(key).forEach(v => {
+    const c = document.createElement('div');
+    c.className = 'chip' + (v === '전체' ? ' active' : '');
+    c.textContent = v;
+    c.onclick = () => {
+      F[key] = v;
+      [...box.children].forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      render();
+    };
     box.appendChild(c);
   });
 }
-buildChips('sl-pos','pos'); buildChips('sl-job','job'); buildChips('sl-basic','basic'); buildChips('sl-vet','vet');
-document.getElementById('search').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();render();});
 
-function filt(){
-  return DATA.filter(d=>
-    (F.pos==='전체'||d.pos===F.pos)&&(F.job==='전체'||d.job===F.job)&&
-    (F.basic==='전체'||d.basic===F.basic)&&(F.vet==='전체'||d.vet===F.vet)&&
-    (F.q===''||d.name.toLowerCase().includes(F.q)));
+function rebuildFilters() {
+  F.pos='전체'; F.job='전체'; F.basic='전체'; F.vet='전체'; F.q='';
+  document.getElementById('search').value = '';
+  buildChips('sl-pos','pos'); buildChips('sl-job','job');
+  buildChips('sl-basic','basic'); buildChips('sl-vet','vet');
 }
-function tagCls(v){return v==='이수완료'?'t-done':v==='진행중'?'t-prog':'t-na';}
-function animVal(el,target,suffix,dec){
-  const start=parseFloat(el.dataset.v||0); const t0=performance.now();
-  function step(t){const p=Math.min((t-t0)/600,1); const cur=start+(target-start)*(1-Math.pow(1-p,3));
-    el.textContent=(dec?cur.toFixed(1):Math.round(cur))+(suffix||''); if(p<1)requestAnimationFrame(step); else el.dataset.v=target;}
+
+document.getElementById('search').addEventListener('input', e => { F.q = e.target.value.toLowerCase(); render(); });
+
+function filt() {
+  return DATA.filter(d =>
+    (F.pos==='전체'||d.pos===F.pos) && (F.job==='전체'||d.job===F.job) &&
+    (F.basic==='전체'||d.basic===F.basic) && (F.vet==='전체'||d.vet===F.vet) &&
+    (F.q===''||d.name.toLowerCase().includes(F.q))
+  );
+}
+
+function tagCls(v) { return v==='이수완료'?'t-done':v==='진행중'?'t-prog':'t-na'; }
+
+function animVal(el, target, suffix, dec) {
+  const start = parseFloat(el.dataset.v || 0); const t0 = performance.now();
+  function step(t) {
+    const p = Math.min((t-t0)/600,1); const cur = start+(target-start)*(1-Math.pow(1-p,3));
+    el.textContent = (dec?cur.toFixed(1):Math.round(cur))+(suffix||'');
+    if (p<1) requestAnimationFrame(step); else el.dataset.v = target;
+  }
   requestAnimationFrame(step);
 }
-let charts={};
-function donut(id,labels,vals){
-  const ctx=document.getElementById(id);
-  if(charts[id]){charts[id].data.labels=labels;charts[id].data.datasets[0].data=vals;charts[id].update();return;}
-  charts[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:PAL,borderColor:'rgba(0,0,0,.2)',borderWidth:2,hoverOffset:10}]},
+
+let charts = {};
+function donut(id, labels, vals) {
+  const ctx = document.getElementById(id);
+  if (charts[id]) { charts[id].data.labels=labels; charts[id].data.datasets[0].data=vals; charts[id].update(); return; }
+  charts[id] = new Chart(ctx, {type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:PAL,borderColor:'rgba(0,0,0,.2)',borderWidth:2,hoverOffset:10}]},
     options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{padding:14,usePointStyle:true,pointStyle:'circle'}}},animation:{animateScale:true}}});
 }
-function bars(id,labels,datasets){
-  const ctx=document.getElementById(id);
-  if(charts[id]){charts[id].data.labels=labels;charts[id].data.datasets=datasets;charts[id].update();return;}
-  charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets},
+
+function bars(id, labels, datasets) {
+  const ctx = document.getElementById(id);
+  if (charts[id]) { charts[id].data.labels=labels; charts[id].data.datasets=datasets; charts[id].update(); return; }
+  charts[id] = new Chart(ctx, {type:'bar',data:{labels,datasets},
     options:{plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}},
     scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,.05)'}},y:{stacked:true,grid:{color:'rgba(255,255,255,.05)'},ticks:{precision:0}}}}});
 }
-function cnt(arr,key,val){return arr.filter(d=>d[key]===val).length;}
 
-function render(){
-  const f=filt();
-  document.getElementById('totRec').textContent=DATA.length;
-  animVal(document.getElementById('kp1'),f.length,'',false);
-  const bd=cnt(f,'basic','이수완료'); animVal(document.getElementById('kp2'),f.length?bd/f.length*100:0,'%',true);
-  const vTarget=f.filter(d=>d.vet!=='비대상'); const vd=cnt(vTarget,'vet','이수완료');
-  animVal(document.getElementById('kp3'),vTarget.length?vd/vTarget.length*100:0,'%',true);
-  animVal(document.getElementById('kp4'),cnt(f,'pos','Engineer'),'',false);
+function cnt(arr, key, val) { return arr.filter(d => d[key]===val).length; }
 
-  const posL=['Engineer','Assistant Engineer','Site leader'];
-  donut('cPos',posL,posL.map(p=>cnt(f,'pos',p)));
-  const jobL=Array.from(new Set(DATA.map(d=>d.job)));
-  donut('cJob',jobL,jobL.map(j=>cnt(f,'job',j)));
-  bars('cEdu',['Basic','Veteran'],[
+function render() {
+  const f = filt();
+  document.getElementById('totRec').textContent = DATA.length;
+  animVal(document.getElementById('kp1'), f.length, '', false);
+  const bd = cnt(f,'basic','이수완료');
+  animVal(document.getElementById('kp2'), f.length?bd/f.length*100:0, '%', true);
+  const vTarget = f.filter(d => d.vet!=='비대상');
+  const vd = cnt(vTarget,'vet','이수완료');
+  animVal(document.getElementById('kp3'), vTarget.length?vd/vTarget.length*100:0, '%', true);
+  animVal(document.getElementById('kp4'), cnt(f,'pos','Engineer'), '', false);
+
+  const posL = Array.from(new Set(DATA.map(d=>d.pos).filter(Boolean)));
+  donut('cPos', posL, posL.map(p=>cnt(f,'pos',p)));
+  const jobL = Array.from(new Set(DATA.map(d=>d.job).filter(Boolean)));
+  donut('cJob', jobL, jobL.map(j=>cnt(f,'job',j)));
+  bars('cEdu', ['Basic','Veteran'], [
     {label:'이수완료',data:[cnt(f,'basic','이수완료'),cnt(f,'vet','이수완료')],backgroundColor:'#00cec9',borderRadius:6},
     {label:'진행중',data:[cnt(f,'basic','진행중'),cnt(f,'vet','진행중')],backgroundColor:'#fdcb6e',borderRadius:6},
     {label:'비대상',data:[cnt(f,'basic','비대상'),cnt(f,'vet','비대상')],backgroundColor:'#636e92',borderRadius:6},
   ]);
 
-  const tb=document.getElementById('tbody'); tb.innerHTML='';
-  document.getElementById('tblCnt').textContent=f.length;
-  if(!f.length){tb.innerHTML='<tr><td colspan="9" class="empty">조건에 맞는 인원이 없습니다</td></tr>';return;}
-  f.forEach(d=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${d.no}</td><td><b>${d.name}</b></td><td>${d.join}</td><td>${d.exp}</td>
+  const tb = document.getElementById('tbody'); tb.innerHTML = '';
+  document.getElementById('tblCnt').textContent = f.length;
+  if (!f.length) { tb.innerHTML='<tr><td colspan="9" class="empty">조건에 맞는 인원이 없습니다</td></tr>'; return; }
+  f.forEach((d,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.no||i+1}</td><td><b>${d.name}</b></td><td>${d.join}</td><td>${d.exp}</td>
       <td>${d.pos}</td><td>${d.job}</td>
       <td><span class="tag ${tagCls(d.basic)}">${d.basic}</span></td>
       <td><span class="tag ${tagCls(d.vet)}">${d.vet}</span></td>
@@ -187,7 +294,9 @@ function render(){
     tb.appendChild(tr);
   });
 }
-render();
+
+// 페이지 열릴 때 자동 로드
+loadData();
 </script>
 </body>
 </html>
