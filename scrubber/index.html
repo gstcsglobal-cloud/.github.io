@@ -69,6 +69,7 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
   padding:6px 15px;border-radius:30px;font-size:12px;font-weight:700;transition:all .2s;user-select:none}
 .pchip:hover{border-color:var(--a4)}
 .pchip.active{background:linear-gradient(90deg,var(--a4),var(--a5));border-color:transparent;box-shadow:0 4px 16px rgba(251,191,36,.35)}
+.pchip.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
 
 /* GRANULARITY */
 .gran-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--glassb)}
@@ -204,6 +205,7 @@ tr:hover td{background:rgba(255,255,255,.04)}
       <div class="pchip" data-g="year" onclick="setGran('year')" data-i="g_year">Year</div>
     </div>
     <span class="gran-note" data-i="gran_note">↑ Trend chart aggregation unit</span>
+    <span class="gran-note" id="autoGranNote" style="color:#fbbf24"></span>
   </div>
 </div>
 
@@ -314,7 +316,8 @@ const T={
     note_model:'모델별 분포',note_group:'공정 그룹별 분포',note_yoy:'Bar: 대수 · Line: 전년비(%)',
     tbl_title:'상세 목록',loading:'데이터 불러오는 중...',
     warr_all:'전체',warr_ok:'유효',warr_exp:'만료',no_data:'조건에 맞는 데이터가 없습니다',
-    legend_cum:'누적',legend_new:'신규',range_all:'전체 기간'},
+    legend_cum:'누적',legend_new:'신규',range_all:'전체 기간',
+    auto_switch:'기간이 길어 자동 전환됨',too_fine:'권장하지 않음'},
   en:{title:'🌐 Global Scrubber Installation Status',sub:'Integrated monitoring dashboard for installed scrubbers',
     back:'← Main',total_badge:'Total',units:'units',refresh:'Refresh',
     date_range:'Date Range',apply:'Apply',reset:'Reset',
@@ -329,7 +332,8 @@ const T={
     note_model:'By model',note_group:'By process group',note_yoy:'Bar: count · Line: YoY(%)',
     tbl_title:'Detail List',loading:'Loading...',
     warr_all:'All',warr_ok:'Active',warr_exp:'Expired',no_data:'No data found',
-    legend_cum:'Cumulative',legend_new:'New',range_all:'All time'},
+    legend_cum:'Cumulative',legend_new:'New',range_all:'All time',
+    auto_switch:'Auto-switched (range too long)',too_fine:'not recommended'},
   zh:{title:'🌐 全球洗涤器安装状况',sub:'客户安装洗涤器综合监控仪表板',
     back:'← 主页',total_badge:'共',units:'台',refresh:'刷新',
     date_range:'日期范围',apply:'应用',reset:'重置',
@@ -344,7 +348,8 @@ const T={
     note_model:'按型号',note_group:'按工艺组',note_yoy:'柱:台数·线:同比%',
     tbl_title:'详细列表',loading:'加载中...',
     warr_all:'全部',warr_ok:'有效',warr_exp:'到期',no_data:'无数据',
-    legend_cum:'累计',legend_new:'新增',range_all:'全部时间'},
+    legend_cum:'累计',legend_new:'新增',range_all:'全部时间',
+    auto_switch:'区间过长已自动切换',too_fine:'不推荐'},
   ja:{title:'🌐 グローバルスクラバー設置状況',sub:'顧客設置スクラバー統合モニタリング',
     back:'← メイン',total_badge:'合計',units:'台',refresh:'更新',
     date_range:'期間設定',apply:'適用',reset:'リセット',
@@ -359,11 +364,12 @@ const T={
     note_model:'モデル別',note_group:'工程グループ別',note_yoy:'棒:台数·線:前年比%',
     tbl_title:'詳細リスト',loading:'読込中...',
     warr_all:'全体',warr_ok:'有効',warr_exp:'期限切れ',no_data:'データなし',
-    legend_cum:'累積',legend_new:'新規',range_all:'全期間'}
+    legend_cum:'累積',legend_new:'新規',range_all:'全期間',
+    auto_switch:'期間が長いため自動切替',too_fine:'非推奨'}
 };
 
 let LANG='ko', GRAN='month', RAW=[], CHARTS={}, sortK=null, sortAsc=true;
-let DATE_FROM=null, DATE_TO=null;
+let DATE_FROM=null, DATE_TO=null, USER_PICKED_GRAN=false;
 const F={country:'ALL',customer:'ALL',model:'ALL',warr:'ALL',q:''};
 
 Chart.defaults.color='#94a3b8';
@@ -385,8 +391,47 @@ document.addEventListener('click',e=>{if(!e.target.closest('.lang-wrap'))documen
 // 집계 단위
 function setGran(g){
   GRAN=g;
+  USER_PICKED_GRAN=true;
   document.querySelectorAll('[data-g]').forEach(c=>c.classList.toggle('active',c.dataset.g===g));
   if(RAW.length)render();
+}
+
+// 기간 길이(일)에 따라 허용 단위 결정
+function allowedGrans(){
+  if(!DATE_FROM||!DATE_TO) {
+    // 전체 기간이면 RAW의 최소~최대로 계산
+    const dated=RAW.map(r=>toDate(r[CI.turnOn])).filter(Boolean).sort((a,b)=>a-b);
+    if(dated.length<2) return ['week','month','quarter','half','year'];
+    var spanDays=(dated[dated.length-1]-dated[0])/86400000;
+  } else {
+    var spanDays=(DATE_TO-DATE_FROM)/86400000;
+  }
+  // 데이터 포인트가 ~50개 이하가 되도록 단위별 허용
+  const allow=[];
+  if(spanDays<=120) allow.push('week');           // ~4개월까지 주 단위 OK
+  if(spanDays<=365*2.5) allow.push('month');       // ~2.5년까지 월 단위 OK
+  if(spanDays<=365*15) allow.push('quarter');      // ~15년까지 분기 OK
+  if(spanDays<=365*30) allow.push('half');         // ~30년까지 반기 OK
+  allow.push('year');                              // 연 단위는 항상 OK
+  return allow;
+}
+
+// 자동 단위 전환 + 버튼 비활성화
+function syncGranButtons(){
+  const allow=allowedGrans();
+  let switched=false;
+  document.querySelectorAll('[data-g]').forEach(c=>{
+    const g=c.dataset.g;
+    c.classList.toggle('disabled', !allow.includes(g));
+  });
+  // 현재 단위가 허용 안되면 가장 잘게 쪼개지는 허용 단위로 자동 전환
+  if(!allow.includes(GRAN)){
+    GRAN=allow[0];
+    switched=true;
+    document.querySelectorAll('[data-g]').forEach(c=>c.classList.toggle('active',c.dataset.g===GRAN));
+  }
+  const note=document.getElementById('autoGranNote');
+  note.textContent = switched ? '· '+t('auto_switch') : '';
 }
 
 // 날짜 직접 설정
@@ -402,11 +447,7 @@ function applyDateRange(){
 }
 
 function resetDateRange(){
-  DATE_FROM=null; DATE_TO=null;
-  document.getElementById('dateFrom').value='';
-  document.getElementById('dateTo').value='';
-  document.querySelectorAll('[data-q]').forEach(c=>c.classList.toggle('active',c.dataset.q==='all'));
-  updateRangeDisplay();
+  initDefaultRange();
   if(RAW.length)render();
 }
 
@@ -451,6 +492,18 @@ function toDate(v){
 function fmtDate(d){return d?d.toISOString().slice(0,10):'—';}
 function cell(r,k){const v=r[CI[k]];return(v!==undefined&&v!=='')?v:'—';}
 
+// 초기 기본 기간: 현재로부터 20년 전 ~ 오늘
+function initDefaultRange(){
+  const now=new Date();
+  DATE_TO=new Date(now); DATE_TO.setHours(23,59,59,999);
+  DATE_FROM=new Date(); DATE_FROM.setFullYear(now.getFullYear()-20);
+  document.getElementById('dateFrom').value=DATE_FROM.toISOString().slice(0,10);
+  document.getElementById('dateTo').value=DATE_TO.toISOString().slice(0,10);
+  // 빠른선택은 전체 해제 (직접 20년 범위니까)
+  document.querySelectorAll('[data-q]').forEach(c=>c.classList.remove('active'));
+  updateRangeDisplay();
+}
+
 async function loadData(){
   const btn=document.getElementById('refreshBtn');
   const status=document.getElementById('status');
@@ -463,6 +516,7 @@ async function loadData(){
     document.getElementById('totRec').textContent=RAW.length;
     status.className='status ok';
     status.textContent='✅ '+new Date().toLocaleString('ko-KR')+' · '+RAW.length+' '+t('units');
+    initDefaultRange();
     rebuildFilters(); render();
   }catch(e){
     status.className='status err'; status.textContent='❌ '+e.message;
@@ -640,6 +694,7 @@ function animVal(el,target){
 }
 
 function render(){
+  syncGranButtons();
   const f=filt();const now=new Date();
   let active=0,expired=0;
   f.forEach(r=>{const w=toDate(r[CI.warranty]);if(w){w>=now?active++:expired++;}});
