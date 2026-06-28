@@ -14,11 +14,9 @@
   --glass:rgba(255,255,255,0.06);--glassb:rgba(255,255,255,0.13);
   --txt:#e2e8f0;--mut:#94a3b8;--ok:#34d399;--warn:#fbbf24;--bad:#fb7185;
 }
-body{
-  font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
   background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3),#150c25);
-  background-size:400% 400%;animation:grad 22s ease infinite;min-height:100vh;padding:24px 28px
-}
+  background-size:400% 400%;animation:grad 22s ease infinite;min-height:100vh;padding:24px 28px}
 @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .header h1{font-size:28px;font-weight:800;
@@ -58,8 +56,6 @@ body{
 
 /* CALENDAR */
 .cal-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px);margin-bottom:16px}
-
-/* 주차별 현황 표 */
 .wk-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px);margin-bottom:16px}
 .wk-card h3{font-size:14px;font-weight:700;margin-bottom:6px;color:#dfe6ff}
 .wk-range-note{font-size:11px;color:#94a3b8;margin-bottom:12px}
@@ -78,7 +74,6 @@ body{
 .wk-table .wk-zero{color:var(--mut);opacity:.5}
 .wk-week-sub{font-size:9px;color:var(--mut);font-weight:400;display:block;margin-top:2px}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
-.cal-title{font-size:18px;font-weight:800;color:#fff;min-width:160px;text-align:center}
 .cal-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .cal-btn{background:rgba(255,255,255,.07);border:1px solid var(--glassb);border-radius:10px;
   width:36px;height:36px;color:var(--txt);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
@@ -124,7 +119,6 @@ body{
 .cal-count{font-size:9px;color:var(--a4);text-align:center;padding:2px;font-weight:700;flex-shrink:0}
 @media(max-width:768px){.cal-cell{height:100px}.cal-evt{font-size:8px}}
 
-/* 날짜 상세 팝업 */
 #dayModal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.6);
   display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 #dayModal.open{display:flex}
@@ -146,7 +140,6 @@ body{
 .dm-text{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--glassb);border-radius:12px;
   padding:14px;color:var(--txt);font-size:13px;font-family:'Consolas','Malgun Gothic',monospace;
   line-height:1.7;white-space:pre;overflow-x:auto;user-select:text;resize:vertical;min-height:120px}
-.dm-empty{text-align:center;padding:30px;color:var(--mut)}
 .card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:18px;backdrop-filter:blur(14px)}
 .card h3{font-size:13px;font-weight:700;margin-bottom:12px;color:#dfe6ff}
 .card .cw{position:relative;height:220px}
@@ -176,7 +169,6 @@ tr:hover td{background:rgba(255,255,255,.04)}
 @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}}
 
-/* 로그인 가드 */
 #loginOverlay{position:fixed;inset:0;z-index:99999;
   background:linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#1a1a2e);
   background-size:400% 400%;animation:grad 18s ease infinite;
@@ -337,89 +329,55 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzJ6N-h9DXyqTwEoN
 let ADJUST={};
 const C={site:1,line:2,group1:3,tbmCycle:15,model:17,work:23,sn:24,maint:25,chamber:33};
 const WARN_RATIO=0.20;
-
 const T={
   ko:{title:'🔧 스크러버 PM 점검 스케줄',sub:'정기점검(TBM) 이력 기반 예방정비 스케줄',
-    back:'← 메인으로',refresh:'새로고침',loading:'데이터 불러오는 중...',
-    kp1:'총 점검대상',kp2:'점검 지연',kp3:'점검 임박',kp4:'정상',kp5:'주기없음',
+    back:'← 메인으로',refresh:'새로고침',loading:'데이터 불러오는 중...',kp1:'총 점검대상',kp2:'점검 지연',kp3:'점검 임박',kp4:'정상',kp5:'주기없음',
     ch_stat:'📊 점검 상태 분포',ch_line:'🏭 LINE별 지연·임박',ch_week:'📅 향후 60일 예정(주차별)',
-    tbl_title:'🗓️ PM 점검 스케줄 (긴급순)',
-    th_last:'최근 점검일',th_cycle:'주기(일)',th_next:'다음 예정일',th_dl:'잔여일',th_st:'상태',th_cnt:'이력수',
-    st_overdue:'지연',st_soon:'임박',st_ok:'정상',st_na:'주기없음',
-    no_data:'결과 없음',search_ph:'S/N, 모델, Line 검색...',
-    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',
-    cal_today:'오늘',dow:['일','월','화','수','목','금','토'],
-    months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    cal_more:'외 N건',dm_copy:'복사',dm_copied:'복사됨',
-    adj_loaded:'조정 N건',adj_saving:'저장 중...',adj_saved:'A → B 로 조정 저장됨',
-    adj_failed:'저장 실패 (새로고침 후 재시도)',lg_adjusted:'조정됨',
+    tbl_title:'🗓️ PM 점검 스케줄 (긴급순)',th_last:'최근 점검일',th_cycle:'주기(일)',th_next:'다음 예정일',th_dl:'잔여일',th_st:'상태',th_cnt:'이력수',
+    st_overdue:'지연',st_soon:'임박',st_ok:'정상',st_na:'주기없음',no_data:'결과 없음',search_ph:'S/N, 모델, Line 검색...',
+    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',cal_today:'오늘',dow:['일','월','화','수','목','금','토'],
+    months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],cal_more:'외 N건',dm_copy:'복사',dm_copied:'복사됨',
+    adj_loaded:'조정 N건',adj_saving:'저장 중...',adj_saved:'A → B 로 조정 저장됨',adj_failed:'저장 실패 (새로고침 후 재시도)',lg_adjusted:'조정됨',
     drag_hint:'💡 점검 건을 다른 날짜로 드래그하면 일정이 조정되고 팀 전체에 공유됩니다 (✎ = 조정됨)',
-    wk_title:'📋 주차별 점검 현황 (오늘 기준 ±2개월)',
-    wk_week:'주차',wk_plan:'예정',wk_done:'완료',wk_rate:'완료율',wk_thisweek:'이번주',
-    wk_total:'전체',wk_inrange:'표시',wk_outrange:'범위밖 N건',
+    wk_title:'📋 주차별 점검 현황 (오늘 기준 ±2개월)',wk_week:'주차',wk_plan:'예정',wk_done:'완료',wk_rate:'완료율',wk_thisweek:'이번주',wk_total:'전체',wk_inrange:'표시',wk_outrange:'범위밖 N건',
     mode_plan:'예정만',mode_done:'완료만',mode_both:'예정+완료',lg_done:'완료됨'},
   en:{title:'🔧 Scrubber PM Schedule',sub:'Preventive Maintenance schedule based on TBM history',
-    back:'← Main',refresh:'Refresh',loading:'Loading...',
-    kp1:'Total Targets',kp2:'Overdue',kp3:'Due Soon',kp4:'Normal',kp5:'No Cycle',
+    back:'← Main',refresh:'Refresh',loading:'Loading...',kp1:'Total Targets',kp2:'Overdue',kp3:'Due Soon',kp4:'Normal',kp5:'No Cycle',
     ch_stat:'📊 Status Distribution',ch_line:'🏭 Overdue/Soon by LINE',ch_week:'📅 Next 60 Days (weekly)',
-    tbl_title:'🗓️ PM Schedule (by urgency)',
-    th_last:'Last PM',th_cycle:'Cycle(d)',th_next:'Next Due',th_dl:'D-day',th_st:'Status',th_cnt:'History',
-    st_overdue:'Overdue',st_soon:'Due Soon',st_ok:'Normal',st_na:'No Cycle',
-    no_data:'No results',search_ph:'Search S/N, Model, Line...',
-    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',
-    cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    cal_more:'+N more',dm_copy:'Copy',dm_copied:'Copied',
-    adj_loaded:'N adjusted',adj_saving:'Saving...',adj_saved:'Moved A → B',
-    adj_failed:'Save failed (retry after refresh)',lg_adjusted:'Adjusted',
+    tbl_title:'🗓️ PM Schedule (by urgency)',th_last:'Last PM',th_cycle:'Cycle(d)',th_next:'Next Due',th_dl:'D-day',th_st:'Status',th_cnt:'History',
+    st_overdue:'Overdue',st_soon:'Due Soon',st_ok:'Normal',st_na:'No Cycle',no_data:'No results',search_ph:'Search S/N, Model, Line...',
+    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cal_more:'+N more',dm_copy:'Copy',dm_copied:'Copied',
+    adj_loaded:'N adjusted',adj_saving:'Saving...',adj_saved:'Moved A → B',adj_failed:'Save failed (retry after refresh)',lg_adjusted:'Adjusted',
     drag_hint:'💡 Drag an item to another date to reschedule. Changes are shared with the whole team (✎ = adjusted)',
-    wk_title:'📋 Weekly PM Status (±2 months from today)',
-    wk_week:'Week',wk_plan:'Planned',wk_done:'Done',wk_rate:'Rate',wk_thisweek:'This week',
-    wk_total:'Total',wk_inrange:'Shown',wk_outrange:'N out of range',
+    wk_title:'📋 Weekly PM Status (±2 months from today)',wk_week:'Week',wk_plan:'Planned',wk_done:'Done',wk_rate:'Rate',wk_thisweek:'This week',wk_total:'Total',wk_inrange:'Shown',wk_outrange:'N out of range',
     mode_plan:'Planned',mode_done:'Completed',mode_both:'Both',lg_done:'Completed'},
   zh:{title:'🔧 洗涤器PM点检计划',sub:'基于定期点检(TBM)履历的预防性维护计划',
-    back:'← 主页',refresh:'刷新',loading:'加载中...',
-    kp1:'总点检对象',kp2:'点检延迟',kp3:'点检临近',kp4:'正常',kp5:'无周期',
+    back:'← 主页',refresh:'刷新',loading:'加载中...',kp1:'总点检对象',kp2:'点检延迟',kp3:'点检临近',kp4:'正常',kp5:'无周期',
     ch_stat:'📊 点检状态分布',ch_line:'🏭 各LINE延迟·临近',ch_week:'📅 未来60天计划(按周)',
-    tbl_title:'🗓️ PM点检计划(紧急顺序)',
-    th_last:'最近点检日',th_cycle:'周期(天)',th_next:'下次预定日',th_dl:'剩余天',th_st:'状态',th_cnt:'履历数',
-    st_overdue:'延迟',st_soon:'临近',st_ok:'正常',st_na:'无周期',
-    no_data:'无结果',search_ph:'搜索S/N, 型号, Line...',
-    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',
-    cal_today:'今天',dow:['日','一','二','三','四','五','六'],
-    months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-    cal_more:'其他N项',dm_copy:'复制',dm_copied:'已复制',
-    adj_loaded:'调整N项',adj_saving:'保存中...',adj_saved:'已调整 A → B',
-    adj_failed:'保存失败(刷新后重试)',lg_adjusted:'已调整',
+    tbl_title:'🗓️ PM点检计划(紧急顺序)',th_last:'最近点检日',th_cycle:'周期(天)',th_next:'下次预定日',th_dl:'剩余天',th_st:'状态',th_cnt:'履历数',
+    st_overdue:'延迟',st_soon:'临近',st_ok:'正常',st_na:'无周期',no_data:'无结果',search_ph:'搜索S/N, 型号, Line...',
+    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',cal_today:'今天',dow:['日','一','二','三','四','五','六'],
+    months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'其他N项',dm_copy:'复制',dm_copied:'已复制',
+    adj_loaded:'调整N项',adj_saving:'保存中...',adj_saved:'已调整 A → B',adj_failed:'保存失败(刷新后重试)',lg_adjusted:'已调整',
     drag_hint:'💡 将点检项拖到其他日期即可调整日程并与全队共享 (✎ = 已调整)',
-    wk_title:'📋 周点检状况 (今天±2个月)',
-    wk_week:'周次',wk_plan:'计划',wk_done:'完成',wk_rate:'完成率',wk_thisweek:'本周',
-    wk_total:'全部',wk_inrange:'显示',wk_outrange:'范围外N项',
+    wk_title:'📋 周点检状况 (今天±2个月)',wk_week:'周次',wk_plan:'计划',wk_done:'完成',wk_rate:'完成率',wk_thisweek:'本周',wk_total:'全部',wk_inrange:'显示',wk_outrange:'范围外N项',
     mode_plan:'仅计划',mode_done:'仅完成',mode_both:'计划+完成',lg_done:'已完成'},
   ja:{title:'🔧 スクラバーPM点検スケジュール',sub:'定期点検(TBM)履歴に基づく予防保全スケジュール',
-    back:'← メイン',refresh:'更新',loading:'読み込み中...',
-    kp1:'総点検対象',kp2:'点検遅延',kp3:'点検間近',kp4:'正常',kp5:'周期なし',
+    back:'← メイン',refresh:'更新',loading:'読み込み中...',kp1:'総点検対象',kp2:'点検遅延',kp3:'点検間近',kp4:'正常',kp5:'周期なし',
     ch_stat:'📊 点検状態分布',ch_line:'🏭 LINE別 遅延·間近',ch_week:'📅 今後60日予定(週別)',
-    tbl_title:'🗓️ PM点検スケジュール(緊急順)',
-    th_last:'最近点検日',th_cycle:'周期(日)',th_next:'次回予定日',th_dl:'残日',th_st:'状態',th_cnt:'履歴数',
-    st_overdue:'遅延',st_soon:'間近',st_ok:'正常',st_na:'周期なし',
-    no_data:'結果なし',search_ph:'S/N, モデル, Line検索...',
-    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',
-    cal_today:'今日',dow:['日','月','火','水','木','金','土'],
-    months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-    cal_more:'他N件',dm_copy:'コピー',dm_copied:'コピー済',
-    adj_loaded:'調整N件',adj_saving:'保存中...',adj_saved:'A → B に調整',
-    adj_failed:'保存失敗(更新後再試行)',lg_adjusted:'調整済',
+    tbl_title:'🗓️ PM点検スケジュール(緊急順)',th_last:'最近点検日',th_cycle:'周期(日)',th_next:'次回予定日',th_dl:'残日',th_st:'状態',th_cnt:'履歴数',
+    st_overdue:'遅延',st_soon:'間近',st_ok:'正常',st_na:'周期なし',no_data:'結果なし',search_ph:'S/N, モデル, Line検索...',
+    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',cal_today:'今日',dow:['日','月','火','水','木','金','土'],
+    months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'他N件',dm_copy:'コピー',dm_copied:'コピー済',
+    adj_loaded:'調整N件',adj_saving:'保存中...',adj_saved:'A → B に調整',adj_failed:'保存失敗(更新後再試行)',lg_adjusted:'調整済',
     drag_hint:'💡 点検項目を他の日付にドラッグすると日程が調整されチーム全体に共有されます (✎ = 調整済)',
-    wk_title:'📋 週別点検状況 (本日±2ヶ月)',
-    wk_week:'週',wk_plan:'予定',wk_done:'完了',wk_rate:'完了率',wk_thisweek:'今週',
-    wk_total:'全体',wk_inrange:'表示',wk_outrange:'範囲外N件',
+    wk_title:'📋 週別点検状況 (本日±2ヶ月)',wk_week:'週',wk_plan:'予定',wk_done:'完了',wk_rate:'完了率',wk_thisweek:'今週',wk_total:'全体',wk_inrange:'表示',wk_outrange:'範囲外N件',
     mode_plan:'予定のみ',mode_done:'完了のみ',mode_both:'予定+完了',lg_done:'完了'}
 };
 
 let LANG='ko', RAW=[], SCHED=[], CHARTS={}, activeStatus='', sortK='dl', sortAsc=true;
-let CAL_Y=new Date().getFullYear(), CAL_M=new Date().getMonth();
-let CAL_MODE='both';
+let CAL_Y=new Date().getFullYear(), CAL_M=new Date().getMonth(), CAL_MODE='both';
 let DONE_HIST=[];
 
 try{ if(window.name && T[window.name]) LANG=window.name; }catch(e){}
@@ -449,7 +407,7 @@ function toDate(v){
   if(!isNaN(n)&&n>20000&&n<80000)return new Date(Date.UTC(1899,11,30)+n*86400000);
   const s=String(v).trim();
   const m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
-  if(m){ return new Date(+m[1], +m[2]-1, +m[3]); }
+  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
   const d=new Date(s);return isNaN(d)?null:d;
 }
 function fmtDate(d){return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'—';}
@@ -474,9 +432,7 @@ async function loadData(){
       fetch(SHEET_URL+'&t='+Date.now()).then(r=>r.text()),
       fetch(APPS_SCRIPT_URL+'?t='+Date.now()).then(r=>r.json())
     ]);
-    if(csvRes.status==='fulfilled'){
-      RAW=Papa.parse(csvRes.value,{skipEmptyLines:true}).data.slice(1);
-    }
+    if(csvRes.status==='fulfilled') RAW=Papa.parse(csvRes.value,{skipEmptyLines:true}).data.slice(1);
     ADJUST = (adjRes.status==='fulfilled' && adjRes.value) ? adjRes.value : {};
     SCHED=buildSchedule(RAW);
     status.className='status ok';
@@ -491,8 +447,7 @@ async function loadData(){
 }
 
 function buildSchedule(rows){
-  const g={};
-  DONE_HIST=[];
+  const g={}; DONE_HIST=[];
   rows.forEach(r=>{
     if((r[C.maint]||'').toString().trim().toUpperCase()!=='TBM')return;
     const sn=(r[C.sn]||'').toString().trim(); if(!sn)return;
@@ -522,94 +477,50 @@ function buildSchedule(rows){
   });
 }
 
-function countBy(arr,f){
-  const m={};
-  arr.forEach(x=>{const k=f(x)||'N/A';m[k]=(m[k]||0)+1;});
-  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
-}
-function animVal(el,target){
-  const start=parseFloat(el.dataset.v||0), t0=performance.now();
-  function step(t){
-    const p=Math.min((t-t0)/500,1);
-    const cur=start+(target-start)*(1-Math.pow(1-p,3));
-    el.textContent=Math.round(cur);
-    if(p<1)requestAnimationFrame(step); else el.dataset.v=target;
-  }
-  requestAnimationFrame(step);
-}
+function countBy(arr,f){const m={};arr.forEach(x=>{const k=f(x)||'N/A';m[k]=(m[k]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);}
+function animVal(el,target){const start=parseFloat(el.dataset.v||0),t0=performance.now();function step(t){const p=Math.min((t-t0)/500,1);const cur=start+(target-start)*(1-Math.pow(1-p,3));el.textContent=Math.round(cur);if(p<1)requestAnimationFrame(step);else el.dataset.v=target;}requestAnimationFrame(step);}
 
 function render(){
   const monthlySched=getMonthlySched();
   const doneCnt=countDoneByYM(CAL_Y,CAL_M);
-
   const over=monthlySched.filter(x=>x.st==='overdue').length;
   const soon=monthlySched.filter(x=>x.st==='soon').length;
   const ok=monthlySched.filter(x=>x.st==='ok').length;
   const na=monthlySched.filter(x=>x.st==='na').length;
-
   animVal(document.getElementById('kp1'),monthlySched.length);
   animVal(document.getElementById('kp2'),over);
   animVal(document.getElementById('kp3'),soon);
   animVal(document.getElementById('kp4'),ok);
   animVal(document.getElementById('kp5'),na);
   animVal(document.getElementById('kp6'),doneCnt);
-
   mkDonut('cStat',[t('st_overdue'),t('st_soon'),t('st_ok'),t('st_na')],[over,soon,ok,na],['#fb7185','#fbbf24','#34d399','#64748b']);
   renderWeeklyTable();
   renderCalendar();
-
   const lines=[...new Set(monthlySched.map(x=>x.line))].filter(l=>l&&l!=='—').slice(0,12);
   mkStackBar('cLine',lines,[
     {label:t('st_overdue'),data:lines.map(l=>monthlySched.filter(x=>x.line===l&&x.st==='overdue').length),backgroundColor:'#fb7185'},
     {label:t('st_soon'),data:lines.map(l=>monthlySched.filter(x=>x.line===l&&x.st==='soon').length),backgroundColor:'#fbbf24'}
   ]);
-
   const weeks={};
-  monthlySched.forEach(x=>{
-    if(x.dl!=null&&x.dl>=0&&x.dl<=60){
-      const wk='+'+Math.floor(x.dl/7)+'w';
-      weeks[wk]=(weeks[wk]||0)+1;
-    }
-  });
+  monthlySched.forEach(x=>{if(x.dl!=null&&x.dl>=0&&x.dl<=60){const wk='+'+Math.floor(x.dl/7)+'w';weeks[wk]=(weeks[wk]||0)+1;}});
   const wk=Object.keys(weeks).sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));
   mkBar('cWeek',wk,wk.map(k=>weeks[k]),'#38bdf8');
-
-  fillSelect('fSite',x=>x.site);
-  fillSelect('fLine',x=>x.line);
-  fillSelect('fModel',x=>x.model);
-
-  document.querySelectorAll('.kpi').forEach(k=>{
-    k.onclick=()=>{
-      activeStatus=k.dataset.s;
-      document.getElementById('fStat').value=activeStatus;
-      document.querySelectorAll('.kpi').forEach(x=>x.classList.remove('sel'));
-      k.classList.add('sel');
-      draw();
-    };
-  });
+  fillSelect('fSite',x=>x.site); fillSelect('fLine',x=>x.line); fillSelect('fModel',x=>x.model);
+  document.querySelectorAll('.kpi').forEach(k=>{k.onclick=()=>{activeStatus=k.dataset.s;document.getElementById('fStat').value=activeStatus;document.querySelectorAll('.kpi').forEach(x=>x.classList.remove('sel'));k.classList.add('sel');draw();};});
   draw();
 }
 
 function fillSelect(id,f){
   const s=document.getElementById(id);
   while(s.options.length>1)s.remove(1);
-  countBy(SCHED,f).forEach(([k])=>{
-    if(k&&k!=='—'){
-      const o=document.createElement('option');
-      o.value=k;o.textContent=k;s.appendChild(o);
-    }
-  });
+  countBy(SCHED,f).forEach(([k])=>{if(k&&k!=='—'){const o=document.createElement('option');o.value=k;o.textContent=k;s.appendChild(o);}});
 }
 
 function draw(){
   const q=document.getElementById('q').value.toLowerCase();
-  const fs=document.getElementById('fSite').value,fl=document.getElementById('fLine').value,
-        fm=document.getElementById('fModel').value,fst=document.getElementById('fStat').value;
+  const fs=document.getElementById('fSite').value,fl=document.getElementById('fLine').value,fm=document.getElementById('fModel').value,fst=document.getElementById('fStat').value;
   let d=SCHED.filter(x=>{
-    if(fs&&x.site!==fs)return false;
-    if(fl&&x.line!==fl)return false;
-    if(fm&&x.model!==fm)return false;
-    if(fst&&x.st!==fst)return false;
+    if(fs&&x.site!==fs)return false; if(fl&&x.line!==fl)return false; if(fm&&x.model!==fm)return false; if(fst&&x.st!==fst)return false;
     if(q&&!`${x.sn} ${x.model} ${x.line} ${x.site} ${x.ch} ${x.group}`.toLowerCase().includes(q))return false;
     return true;
   });
@@ -620,28 +531,18 @@ function draw(){
     if(sortK==='cycle'||sortK==='cnt'){return sortAsc?(x||0)-(y||0):(y||0)-(x||0);}
     return sortAsc?(''+x).localeCompare(''+y,'ko',{numeric:true}):(''+y).localeCompare(''+x,'ko',{numeric:true});
   });
-  const pill={overdue:`<span class="pill bad">${t('st_overdue')}</span>`,soon:`<span class="pill warn">${t('st_soon')}</span>`,
-    ok:`<span class="pill ok">${t('st_ok')}</span>`,na:`<span class="pill na">${t('st_na')}</span>`};
+  const pill={overdue:`<span class="pill bad">${t('st_overdue')}</span>`,soon:`<span class="pill warn">${t('st_soon')}</span>`,ok:`<span class="pill ok">${t('st_ok')}</span>`,na:`<span class="pill na">${t('st_na')}</span>`};
   const tbody=document.getElementById('tbody');
   if(!d.length){tbody.innerHTML=`<tr><td colspan="12" class="empty">${t('no_data')}</td></tr>`;return;}
   tbody.innerHTML=d.map(x=>{
     const dlc=x.st==='overdue'?'bad':x.st==='soon'?'warn':x.st==='ok'?'ok':'';
     const dlt=x.dl==null?'—':(x.dl<0?`D+${-x.dl}`:`D-${x.dl}`);
-    return `<tr><td>${x.sn}</td><td>${x.ch}</td><td>${x.site}</td><td>${x.line}</td>
-      <td>${x.model}</td><td>${x.group}</td><td>${fmtDate(x.last)}</td><td>${x.cycle??'—'}</td>
-      <td>${fmtDate(x.next)}</td><td class="dl ${dlc}">${dlt}</td><td>${pill[x.st]}</td><td>${x.cnt}</td></tr>`;
+    return `<tr><td>${x.sn}</td><td>${x.ch}</td><td>${x.site}</td><td>${x.line}</td><td>${x.model}</td><td>${x.group}</td><td>${fmtDate(x.last)}</td><td>${x.cycle??'—'}</td><td>${fmtDate(x.next)}</td><td class="dl ${dlc}">${dlt}</td><td>${pill[x.st]}</td><td>${x.cnt}</td></tr>`;
   }).join('');
 }
 
-['q','fSite','fLine','fModel','fStat'].forEach(id=>{
-  document.addEventListener('input',e=>{if(e.target.id===id)draw();});
-});
-document.addEventListener('click',e=>{
-  const th=e.target.closest('#tbl thead th');if(!th)return;
-  const k=th.dataset.k;
-  if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=(k==='dl');}
-  draw();
-});
+['q','fSite','fLine','fModel','fStat'].forEach(id=>{document.addEventListener('input',e=>{if(e.target.id===id)draw();});});
+document.addEventListener('click',e=>{const th=e.target.closest('#tbl thead th');if(!th)return;const k=th.dataset.k;if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=(k==='dl');}draw();});
 
 // ===== 캘린더 =====
 function buildYearMonthSelectors(){
@@ -650,20 +551,11 @@ function buildYearMonthSelectors(){
   const nowY=new Date().getFullYear();
   let minY=years.length?Math.min(...years):nowY, maxY=years.length?Math.max(...years):nowY;
   minY=Math.min(minY,nowY); maxY=Math.max(maxY,nowY+1);
-  ySel.innerHTML='';
-  for(let y=minY;y<=maxY;y++){
-    const o=document.createElement('option');
-    o.value=y;o.textContent=y;ySel.appendChild(o);
-  }
+  ySel.innerHTML=''; for(let y=minY;y<=maxY;y++){const o=document.createElement('option');o.value=y;o.textContent=y;ySel.appendChild(o);}
   ySel.value=CAL_Y;
-  mSel.innerHTML='';
-  t('months').forEach((m,i)=>{
-    const o=document.createElement('option');
-    o.value=i;o.textContent=m;mSel.appendChild(o);
-  });
+  mSel.innerHTML=''; t('months').forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;mSel.appendChild(o);});
   mSel.value=CAL_M;
 }
-
 function mondayOf(d){
   const dt=new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const dow=dt.getDay();
@@ -675,79 +567,24 @@ function mondayOf(d){
 function weekKey(d){ return fmtDate(mondayOf(d)); }
 
 function renderWeeklyTable(){
-  const today=new Date();
-  const todayMon=mondayOf(today);
-  const WEEKS_BACK=8, WEEKS_FWD=8;
-  const weeks=[];
+  const today=new Date(), todayMon=mondayOf(today), WEEKS_BACK=8, WEEKS_FWD=8, weeks=[];
   for(let i=-WEEKS_BACK;i<=WEEKS_FWD;i++){
     const wm=new Date(todayMon.getFullYear(), todayMon.getMonth(), todayMon.getDate()+i*7);
     weeks.push({mon:mondayOf(wm), key:fmtDate(mondayOf(wm)), isNow:i===0});
   }
-
-  const planMap={};
-  let planTotal=0, planInRange=0;
-  const firstKey=weeks[0].key, lastKey=weeks[weeks.length-1].key;
-  SCHED.forEach(x=>{
-    if(x.next){
-      const k=weekKey(x.next);
-      planMap[k]=(planMap[k]||0)+1;
-      planTotal++;
-      if(k>=firstKey&&k<=lastKey)planInRange++;
-    }
-  });
-
+  const planMap={}; let planTotal=0, planInRange=0; const firstKey=weeks[0].key, lastKey=weeks[weeks.length-1].key;
+  SCHED.forEach(x=>{ if(x.next){ const k=weekKey(x.next); planMap[k]=(planMap[k]||0)+1; planTotal++; if(k>=firstKey&&k<=lastKey)planInRange++; } });
   const doneMap={};
-  RAW.forEach(r=>{
-    if((r[C.maint]||'').toString().trim().toUpperCase()!=='TBM')return;
-    const wd=toDate(r[C.work]); if(!wd)return;
-    const k=weekKey(wd);
-    doneMap[k]=(doneMap[k]||0)+1;
-  });
-
-  function weekLabel(wm){
-    const we=new Date(wm.getFullYear(), wm.getMonth(), wm.getDate()+6);
-    const f=d=>`${d.getMonth()+1}/${d.getDate()}`;
-    return `${f(wm)}~${f(we)}`;
-  }
-
-  const tbl=document.getElementById('wkTable');
-  const rangeNote=document.getElementById('wkRangeNote');
-  if(rangeNote){
-    const outRange=planTotal-planInRange;
-    rangeNote.textContent=`${t('wk_plan')}: ${t('wk_total')} ${planTotal} · ${t('wk_inrange')} ${planInRange}`+(outRange>0?` · ${t('wk_outrange').replace('N',outRange)}`:'');
-  }
-
+  RAW.forEach(r=>{ if((r[C.maint]||'').toString().trim().toUpperCase()!=='TBM')return; const wd=toDate(r[C.work]); if(!wd)return; const k=weekKey(wd); doneMap[k]=(doneMap[k]||0)+1; });
+  function weekLabel(wm){ const we=new Date(wm.getFullYear(), wm.getMonth(), wm.getDate()+6); const f=d=>`${d.getMonth()+1}/${d.getDate()}`; return `${f(wm)}~${f(we)}`; }
+  const tbl=document.getElementById('wkTable'), rangeNote=document.getElementById('wkRangeNote');
+  if(rangeNote){ const outRange=planTotal-planInRange; rangeNote.textContent=`${t('wk_plan')}: ${t('wk_total')} ${planTotal} · ${t('wk_inrange')} ${planInRange}`+(outRange>0?` · ${t('wk_outrange').replace('N',outRange)}`:''); }
   let html='<thead><tr><th class="row-label">'+t('wk_week')+'</th>';
-  weeks.forEach(w=>{
-    const nowCls=w.isNow?' wk-col-now':'';
-    html+=`<th class="${nowCls}">${weekLabel(w.mon)}<span class="wk-week-sub">${w.isNow?t('wk_thisweek'):''}</span></th>`;
-  });
+  weeks.forEach(w=>{ const nowCls=w.isNow?' wk-col-now':''; html+=`<th class="${nowCls}">${weekLabel(w.mon)}<span class="wk-week-sub">${w.isNow?t('wk_thisweek'):''}</span></th>`; });
   html+='</tr></thead><tbody>';
-
-  html+='<tr><td class="row-label">📅 '+t('wk_plan')+'</td>';
-  weeks.forEach(w=>{
-    const v=planMap[w.key]||0;
-    const nowCls=w.isNow?' wk-col-now':'';
-    html+=`<td class="${nowCls}"><span class="${v?'wk-cell-plan':'wk-zero'}">${v}</span></td>`;
-  });
-  html+='</tr>';
-
-  html+='<tr><td class="row-label">✅ '+t('wk_done')+'</td>';
-  weeks.forEach(w=>{
-    const v=doneMap[w.key]||0;
-    const nowCls=w.isNow?' wk-col-now':'';
-    html+=`<td class="${nowCls}"><span class="${v?'wk-cell-done':'wk-zero'}">${v}</span></td>`;
-  });
-  html+='</tr>';
-
-  html+='<tr><td class="row-label">📊 '+t('wk_rate')+'</td>';
-  weeks.forEach(w=>{
-    const p=planMap[w.key]||0, d=doneMap[w.key]||0, rate=p?Math.round(d/p*100):null;
-    const cls=rate==null?'wk-zero':rate>=80?'wk-cell-rate high':rate>=50?'wk-cell-rate mid':'wk-cell-rate low';
-    const nowCls=w.isNow?' wk-col-now':'';
-    html+=`<td class="${nowCls}"><span class="${cls}">${rate==null?'—':rate+'%'}</span></td>`;
-  });
-  html+='</tr></tbody>';
+  html+='<tr><td class="row-label">📅 '+t('wk_plan')+'</td>'; weeks.forEach(w=>{ const v=planMap[w.key]||0; const nowCls=w.isNow?' wk-col-now':''; html+=`<td class="${nowCls}"><span class="${v?'wk-cell-plan':'wk-zero'}">${v}</span></td>`; }); html+='</tr>';
+  html+='<tr><td class="row-label">✅ '+t('wk_done')+'</td>'; weeks.forEach(w=>{ const v=doneMap[w.key]||0; const nowCls=w.isNow?' wk-col-now':''; html+=`<td class="${nowCls}"><span class="${v?'wk-cell-done':'wk-zero'}">${v}</span></td>`; }); html+='</tr>';
+  html+='<tr><td class="row-label">📊 '+t('wk_rate')+'</td>'; weeks.forEach(w=>{ const p=planMap[w.key]||0,d=doneMap[w.key]||0,rate=p?Math.round(d/p*100):null; const cls=rate==null?'wk-zero':rate>=80?'wk-cell-rate high':rate>=50?'wk-cell-rate mid':'wk-cell-rate low'; const nowCls=w.isNow?' wk-col-now':''; html+=`<td class="${nowCls}"><span class="${cls}">${rate==null?'—':rate+'%'}</span></td>`; }); html+='</tr></tbody>';
   tbl.innerHTML=html;
 }
 
@@ -755,30 +592,20 @@ function renderCalendar(){
   const grid=document.getElementById('calGrid');
   const dow=document.getElementById('calDowRow');
   dow.innerHTML=t('dow').map((d,i)=>`<div class="cal-dow ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
-
   const first=new Date(CAL_Y, CAL_M, 1);
   const startDow=first.getDay();
   const pad=(startDow===0?6:startDow-1);
   const start=new Date(CAL_Y, CAL_M, 1-pad);
-
   let html='';
   for(let i=0;i<42;i++){
     const d=new Date(start.getFullYear(), start.getMonth(), start.getDate()+i);
     const empty=d.getMonth()!==CAL_M;
     const today=fmtDate(d)===fmtDate(new Date());
+    const dayKey=fmtDate(d);
     const dayItems=[];
-
     if(!empty){
-      const monthItems=SCHED.filter(x=>x.next &&
-        x.next.getFullYear()===CAL_Y &&
-        x.next.getMonth()===CAL_M &&
-        x.next.getDate()===d.getDate()
-      );
-      const doneItems=DONE_HIST.filter(x=>x.date.getFullYear()===CAL_Y &&
-        x.date.getMonth()===CAL_M &&
-        x.date.getDate()===d.getDate()
-      );
-
+      const monthItems=SCHED.filter(x=>x.next && x.next.getFullYear()===CAL_Y && x.next.getMonth()===CAL_M && x.next.getDate()===d.getDate());
+      const doneItems=DONE_HIST.filter(x=>x.date.getFullYear()===CAL_Y && x.date.getMonth()===CAL_M && x.date.getDate()===d.getDate());
       if(CAL_MODE==='done'){
         doneItems.forEach(x=>dayItems.push({txt:`${x.sn} ${x.ch} ✓`,cls:'done'}));
       }else if(CAL_MODE==='plan'){
@@ -788,8 +615,7 @@ function renderCalendar(){
         doneItems.forEach(x=>dayItems.push({txt:`${x.sn} ${x.ch} ✓`,cls:'done'}));
       }
     }
-
-    html+=`<div class="cal-cell ${empty?'empty':''} ${today?'today':''}">
+    html+=`<div class="cal-cell ${empty?'empty':''} ${today?'today':''}" ${empty?'':'onclick="openDayModal(\\''+dayKey+'\\')"'}>
       <div class="cal-date ${d.getDay()===0?'sun':d.getDay()===6?'sat':''}">${empty?'':d.getDate()}</div>
       <div class="cal-events">
         ${dayItems.slice(0,4).map(it=>`<div class="cal-evt ${it.cls}">${it.txt}</div>`).join('')}
@@ -800,34 +626,47 @@ function renderCalendar(){
   grid.innerHTML=html;
 }
 
+function openDayModal(dateStr){
+  const d=toDate(dateStr); if(!d)return;
+  const plans=SCHED.filter(x=>x.next && x.next.getFullYear()===d.getFullYear() && x.next.getMonth()===d.getMonth() && x.next.getDate()===d.getDate());
+  const dones=DONE_HIST.filter(x=>x.date && x.date.getFullYear()===d.getFullYear() && x.date.getMonth()===d.getMonth() && x.date.getDate()===d.getDate());
+  document.getElementById('dmTitle').textContent=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('dmSub').textContent=`Plan ${plans.length} / Done ${dones.length}`;
+  let txt='';
+  if(plans.length){
+    txt+='== Planned ==\n';
+    plans.forEach(x=>{ txt+=`${x.sn} | ${x.ch} | ${x.line} | ${x.model} | ${x.st}${x.adjusted?' | adjusted':''}\n`; });
+  }
+  if(dones.length){
+    if(txt) txt+='\n';
+    txt+='== Completed ==\n';
+    dones.forEach(x=>{ txt+=`${x.sn} | ${x.ch} | ${x.line} | ${x.model}\n`; });
+  }
+  document.getElementById('dmText').value=txt||'No events';
+  document.getElementById('dayModal').classList.add('open');
+}
+function copyDayText(){
+  const ta=document.getElementById('dmText');
+  ta.select(); document.execCommand('copy');
+  const btn=document.getElementById('dmCopy');
+  const old=btn.textContent;
+  btn.textContent=t('dm_copied'); btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent=old; btn.classList.remove('copied');},1200);
+}
+function closeDayModal(){ document.getElementById('dayModal').classList.remove('open'); }
+
 function calPrev(){if(CAL_M===0){CAL_M=11;CAL_Y--}else CAL_M--;document.getElementById('calYear').value=CAL_Y;document.getElementById('calMonth').value=CAL_M;render();}
 function calNext(){if(CAL_M===11){CAL_M=0;CAL_Y++}else CAL_M++;document.getElementById('calYear').value=CAL_Y;document.getElementById('calMonth').value=CAL_M;render();}
 function calToday(){const d=new Date();CAL_Y=d.getFullYear();CAL_M=d.getMonth();document.getElementById('calYear').value=CAL_Y;document.getElementById('calMonth').value=CAL_M;render();}
 function calJump(){CAL_Y=+document.getElementById('calYear').value;CAL_M=+document.getElementById('calMonth').value;render();}
 function setCalMode(m){CAL_MODE=m;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.m===m));renderCalendar();}
 
-function mkDonut(id,labels,data,colors){
-  const ctx=document.getElementById(id);
-  if(CHARTS[id])CHARTS[id].destroy();
-  CHARTS[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-}
-function mkStackBar(id,labels,datasets){
-  const ctx=document.getElementById(id);
-  if(CHARTS[id])CHARTS[id].destroy();
-  CHARTS[id]=new Chart(ctx,{type:'bar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
-}
-function mkBar(id,labels,data,color){
-  const ctx=document.getElementById(id);
-  if(CHARTS[id])CHARTS[id].destroy();
-  CHARTS[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-}
+function mkDonut(id,labels,data,colors){const ctx=document.getElementById(id);if(CHARTS[id])CHARTS[id].destroy();CHARTS[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});}
+function mkStackBar(id,labels,datasets){const ctx=document.getElementById(id);if(CHARTS[id])CHARTS[id].destroy();CHARTS[id]=new Chart(ctx,{type:'bar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});}
+function mkBar(id,labels,data,color){const ctx=document.getElementById(id);if(CHARTS[id])CHARTS[id].destroy();CHARTS[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});}
 
 function checkPw(){document.getElementById('loginOverlay').classList.add('hidden');}
-function copyDayText(){}
-function closeDayModal(){}
-
-buildYearMonthSelectors();
-loadData();
+buildYearMonthSelectors();loadData();
 </script>
 </body>
 </html>
