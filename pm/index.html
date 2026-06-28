@@ -14,9 +14,11 @@
   --glass:rgba(255,255,255,0.06);--glassb:rgba(255,255,255,0.13);
   --txt:#e2e8f0;--mut:#94a3b8;--ok:#34d399;--warn:#fbbf24;--bad:#fb7185;
 }
-body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
+body{
+  font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
   background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3),#150c25);
-  background-size:400% 400%;animation:grad 22s ease infinite;min-height:100vh;padding:24px 28px}
+  background-size:400% 400%;animation:grad 22s ease infinite;min-height:100vh;padding:24px 28px
+}
 @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .header h1{font-size:28px;font-weight:800;
@@ -241,7 +243,6 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="kpi k6" data-s="done"><div class="ic">🏁</div><div class="val" id="kp6">0</div><div class="cap">Completed</div></div>
 </div>
 
-<!-- 주차별 점검 현황 표 -->
 <div class="wk-card">
   <h3 data-i="wk_title">📋 주차별 점검 현황 (오늘 기준 ±2개월)</h3>
   <div class="wk-range-note" id="wkRangeNote"></div>
@@ -250,7 +251,6 @@ tr:hover td{background:rgba(255,255,255,.04)}
   </div>
 </div>
 
-<!-- 캘린더 -->
 <div class="cal-card">
   <div class="cal-header">
     <div class="cal-nav">
@@ -278,7 +278,6 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
-<!-- 날짜 상세 팝업 -->
 <div id="dayModal" onclick="if(event.target.id==='dayModal')closeDayModal()">
   <div class="dm-box">
     <div class="dm-head">
@@ -336,7 +335,6 @@ tr:hover td{background:rgba(255,255,255,.04)}
 const SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vTr_0-rtwnz47XAWsHUJT7acg5vgrVPe4Gk17ArnsWfnV_30Y4BJXIBRZZ1bAw33TUsqDmoz0LgzbOP/pub?gid=646668307&single=true&output=csv';
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzJ6N-h9DXyqTwEoNOnksBzMDsySqnkQ7OSiuR9kBFGuRY3oJ29QI9pnIfyEqvtpDf3/exec';
 let ADJUST={};
-
 const C={site:1,line:2,group1:3,tbmCycle:15,model:17,work:23,sn:24,maint:25,chamber:33};
 const WARN_RATIO=0.20;
 
@@ -430,7 +428,6 @@ Chart.defaults.color='#94a3b8';
 Chart.defaults.font.family="'Segoe UI','Malgun Gothic',sans-serif";
 
 function t(k){return (T[LANG]||T.ko)[k]||k;}
-
 function applyLang(){
   document.querySelectorAll('[data-i]').forEach(el=>{el.textContent=t(el.getAttribute('data-i'));});
   document.querySelectorAll('[data-i-th]').forEach(el=>{el.textContent=t(el.getAttribute('data-i-th'));});
@@ -452,20 +449,20 @@ function toDate(v){
   if(!isNaN(n)&&n>20000&&n<80000)return new Date(Date.UTC(1899,11,30)+n*86400000);
   const s=String(v).trim();
   const m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
-  if(m){ return new Date(Date.UTC(+m[1], +m[2]-1, +m[3])); }
+  if(m){ return new Date(+m[1], +m[2]-1, +m[3]); }
   const d=new Date(s);return isNaN(d)?null:d;
 }
-function fmtDate(d){return d?d.toISOString().slice(0,10):'—';}
+function fmtDate(d){return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'—';}
 
 function countDoneByYM(year, month){
   return RAW.filter(r=>{
     if((r[C.maint]||'').toString().trim().toUpperCase()!=='TBM')return false;
     const d=toDate(r[C.work]); if(!d)return false;
-    return d.getUTCFullYear()===year && d.getUTCMonth()===month;
+    return d.getFullYear()===year && d.getMonth()===month;
   }).length;
 }
 function getMonthlySched(){
-  return SCHED.filter(x=>x.next && x.next.getUTCFullYear()===CAL_Y && x.next.getUTCMonth()===CAL_M);
+  return SCHED.filter(x=>x.next && x.next.getFullYear()===CAL_Y && x.next.getMonth()===CAL_M);
 }
 
 async function loadData(){
@@ -504,21 +501,15 @@ function buildSchedule(rows){
     const k=sn+'||'+ch;
     if(!g[k])g[k]={sn,ch,rows:0,last:null,meta:r};
     g[k].rows++; if(!g[k].last||wd>g[k].last){g[k].last=wd;g[k].meta=r;}
-    DONE_HIST.push({
-      date:wd,sn,ch,
-      site:(r[C.site]||'—'),line:(r[C.line]||'—'),
-      model:(r[C.model]||'—'),group:(r[C.group1]||'—')
-    });
+    DONE_HIST.push({date:wd,sn,ch,site:(r[C.site]||'—'),line:(r[C.line]||'—'),model:(r[C.model]||'—'),group:(r[C.group1]||'—')});
   });
-  const today=new Date(); today.setUTCHours(0,0,0,0);
+  const today=new Date(); today.setHours(0,0,0,0);
   return Object.values(g).map(o=>{
     const cycle=Number(o.meta[C.tbmCycle])||null;
     let next=null,dl=null,st='na';
-    if(cycle&&o.last){
-      next=new Date(o.last.getTime()+cycle*86400000);
-    }
+    if(cycle&&o.last) next=new Date(o.last.getTime()+cycle*86400000);
     const key=o.sn+'||'+o.ch;
-    let origNext=next, adjusted=false, memo='';
+    let adjusted=false, memo='';
     if(ADJUST[key] && ADJUST[key].newDate){
       const ad=toDate(ADJUST[key].newDate);
       if(ad){ next=ad; adjusted=true; memo=ADJUST[key].memo||''; }
@@ -527,11 +518,7 @@ function buildSchedule(rows){
       dl=Math.round((next-today)/86400000);
       st = cycle ? (dl<0?'overdue':(dl<=cycle*WARN_RATIO?'soon':'ok')) : (dl<0?'overdue':'ok');
     }
-    return {
-      sn:o.sn,ch:o.ch,site:o.meta[C.site]||'—',line:o.meta[C.line]||'—',
-      model:o.meta[C.model]||'—',group:o.meta[C.group1]||'—',
-      last:o.last,cycle,next,origNext,dl,st,cnt:o.rows,key,adjusted,memo
-    };
+    return {sn:o.sn,ch:o.ch,site:o.meta[C.site]||'—',line:o.meta[C.line]||'—',model:o.meta[C.model]||'—',group:o.meta[C.group1]||'—',last:o.last,cycle,next,dl,st,cnt:o.rows,key,adjusted,memo};
   });
 }
 
@@ -540,21 +527,20 @@ function countBy(arr,f){
   arr.forEach(x=>{const k=f(x)||'N/A';m[k]=(m[k]||0)+1;});
   return Object.entries(m).sort((a,b)=>b[1]-a[1]);
 }
-
 function animVal(el,target){
-  const start=parseFloat(el.dataset.v||0);const t0=performance.now();
+  const start=parseFloat(el.dataset.v||0), t0=performance.now();
   function step(t){
     const p=Math.min((t-t0)/500,1);
     const cur=start+(target-start)*(1-Math.pow(1-p,3));
     el.textContent=Math.round(cur);
-    if(p<1)requestAnimationFrame(step);else el.dataset.v=target;
+    if(p<1)requestAnimationFrame(step); else el.dataset.v=target;
   }
   requestAnimationFrame(step);
 }
 
 function render(){
-  const monthlySched = getMonthlySched();
-  const doneCnt = countDoneByYM(CAL_Y, CAL_M);
+  const monthlySched=getMonthlySched();
+  const doneCnt=countDoneByYM(CAL_Y,CAL_M);
 
   const over=monthlySched.filter(x=>x.st==='overdue').length;
   const soon=monthlySched.filter(x=>x.st==='soon').length;
@@ -569,7 +555,6 @@ function render(){
   animVal(document.getElementById('kp6'),doneCnt);
 
   mkDonut('cStat',[t('st_overdue'),t('st_soon'),t('st_ok'),t('st_na')],[over,soon,ok,na],['#fb7185','#fbbf24','#34d399','#64748b']);
-
   renderWeeklyTable();
   renderCalendar();
 
@@ -602,7 +587,6 @@ function render(){
       draw();
     };
   });
-
   draw();
 }
 
@@ -662,7 +646,7 @@ document.addEventListener('click',e=>{
 // ===== 캘린더 =====
 function buildYearMonthSelectors(){
   const ySel=document.getElementById('calYear'), mSel=document.getElementById('calMonth');
-  const years=SCHED.map(x=>x.next).filter(Boolean).map(d=>d.getUTCFullYear());
+  const years=SCHED.map(x=>x.next).filter(Boolean).map(d=>d.getFullYear());
   const nowY=new Date().getFullYear();
   let minY=years.length?Math.min(...years):nowY, maxY=years.length?Math.max(...years):nowY;
   minY=Math.min(minY,nowY); maxY=Math.max(maxY,nowY+1);
@@ -681,10 +665,11 @@ function buildYearMonthSelectors(){
 }
 
 function mondayOf(d){
-  const dt=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
-  const dow=dt.getUTCDay();
+  const dt=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow=dt.getDay();
   const diff=(dow===0?-6:1-dow);
-  dt.setUTCDate(dt.getUTCDate()+diff);
+  dt.setDate(dt.getDate()+diff);
+  dt.setHours(0,0,0,0);
   return dt;
 }
 function weekKey(d){ return fmtDate(mondayOf(d)); }
@@ -695,8 +680,8 @@ function renderWeeklyTable(){
   const WEEKS_BACK=8, WEEKS_FWD=8;
   const weeks=[];
   for(let i=-WEEKS_BACK;i<=WEEKS_FWD;i++){
-    const wm=mondayOf(new Date(todayMon.getTime()+i*7*86400000 + 3*86400000));
-    weeks.push({mon:wm, key:fmtDate(wm), isNow:i===0});
+    const wm=new Date(todayMon.getFullYear(), todayMon.getMonth(), todayMon.getDate()+i*7);
+    weeks.push({mon:mondayOf(wm), key:fmtDate(mondayOf(wm)), isNow:i===0});
   }
 
   const planMap={};
@@ -720,8 +705,8 @@ function renderWeeklyTable(){
   });
 
   function weekLabel(wm){
-    const we=new Date(wm.getTime()+6*86400000);
-    const f=d=>`${d.getUTCMonth()+1}/${d.getUTCDate()}`;
+    const we=new Date(wm.getFullYear(), wm.getMonth(), wm.getDate()+6);
+    const f=d=>`${d.getMonth()+1}/${d.getDate()}`;
     return `${f(wm)}~${f(we)}`;
   }
 
@@ -766,33 +751,32 @@ function renderWeeklyTable(){
   tbl.innerHTML=html;
 }
 
-// ===== 캘린더 =====
 function renderCalendar(){
   const grid=document.getElementById('calGrid');
   const dow=document.getElementById('calDowRow');
   dow.innerHTML=t('dow').map((d,i)=>`<div class="cal-dow ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
 
-  const first=new Date(Date.UTC(CAL_Y,CAL_M,1));
-  const startDow=first.getUTCDay();
+  const first=new Date(CAL_Y, CAL_M, 1);
+  const startDow=first.getDay();
   const pad=(startDow===0?6:startDow-1);
-  const start=new Date(Date.UTC(CAL_Y,CAL_M,1-pad));
+  const start=new Date(CAL_Y, CAL_M, 1-pad);
 
   let html='';
   for(let i=0;i<42;i++){
-    const d=new Date(start.getTime()+i*86400000);
-    const empty=d.getUTCMonth()!==CAL_M;
+    const d=new Date(start.getFullYear(), start.getMonth(), start.getDate()+i);
+    const empty=d.getMonth()!==CAL_M;
     const today=fmtDate(d)===fmtDate(new Date());
     const dayItems=[];
 
     if(!empty){
       const monthItems=SCHED.filter(x=>x.next &&
-        x.next.getUTCFullYear()===CAL_Y &&
-        x.next.getUTCMonth()===CAL_M &&
-        x.next.getUTCDate()===d.getUTCDate()
+        x.next.getFullYear()===CAL_Y &&
+        x.next.getMonth()===CAL_M &&
+        x.next.getDate()===d.getDate()
       );
-      const doneItems=DONE_HIST.filter(x=>x.date.getUTCFullYear()===CAL_Y &&
-        x.date.getUTCMonth()===CAL_M &&
-        x.date.getUTCDate()===d.getUTCDate()
+      const doneItems=DONE_HIST.filter(x=>x.date.getFullYear()===CAL_Y &&
+        x.date.getMonth()===CAL_M &&
+        x.date.getDate()===d.getDate()
       );
 
       if(CAL_MODE==='done'){
@@ -806,7 +790,7 @@ function renderCalendar(){
     }
 
     html+=`<div class="cal-cell ${empty?'empty':''} ${today?'today':''}">
-      <div class="cal-date ${d.getUTCDay()===0?'sun':d.getUTCDay()===6?'sat':''}">${empty?'':d.getUTCDate()}</div>
+      <div class="cal-date ${d.getDay()===0?'sun':d.getDay()===6?'sat':''}">${empty?'':d.getDate()}</div>
       <div class="cal-events">
         ${dayItems.slice(0,4).map(it=>`<div class="cal-evt ${it.cls}">${it.txt}</div>`).join('')}
         ${dayItems.length>4?`<div class="cal-count">+${dayItems.length-4}</div>`:''}
@@ -822,7 +806,6 @@ function calToday(){const d=new Date();CAL_Y=d.getFullYear();CAL_M=d.getMonth();
 function calJump(){CAL_Y=+document.getElementById('calYear').value;CAL_M=+document.getElementById('calMonth').value;render();}
 function setCalMode(m){CAL_MODE=m;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.m===m));renderCalendar();}
 
-// ===== charts =====
 function mkDonut(id,labels,data,colors){
   const ctx=document.getElementById(id);
   if(CHARTS[id])CHARTS[id].destroy();
@@ -839,7 +822,6 @@ function mkBar(id,labels,data,color){
   CHARTS[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 }
 
-// ===== misc =====
 function checkPw(){document.getElementById('loginOverlay').classList.add('hidden');}
 function copyDayText(){}
 function closeDayModal(){}
