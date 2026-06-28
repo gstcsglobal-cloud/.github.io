@@ -479,7 +479,7 @@ function mkBar(id,labels,data,color){const ctx=document.getElementById(id);if(CH
 function checkPw(){document.getElementById('loginOverlay').classList.add('hidden');}
 document.addEventListener('DOMContentLoaded',()=>{buildYearMonthSelectors();loadData();});
 
-  (function(){
+(function(){
   const PASSWORD='gst1234!';
   function isAuthed(){try{return sessionStorage.getItem('gst_auth')==='1';}catch(e){return false;}}
   window.checkPw=function(){
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded',()=>{buildYearMonthSelectors();load
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
   else init();
-})();
+})(); 
 </script>
 </body>
 </html>
