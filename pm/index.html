@@ -55,6 +55,24 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 
 /* CALENDAR */
 .cal-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px);margin-bottom:16px}
+
+/* 주차별 현황 표 */
+.wk-card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:20px;backdrop-filter:blur(14px);margin-bottom:16px}
+.wk-card h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#dfe6ff}
+.wk-wrap{overflow-x:auto}
+.wk-wrap::-webkit-scrollbar{height:6px}.wk-wrap::-webkit-scrollbar-thumb{background:var(--glassb);border-radius:4px}
+.wk-table{border-collapse:collapse;width:100%;min-width:760px;font-size:12px}
+.wk-table th,.wk-table td{border:1px solid var(--glassb);padding:8px 6px;text-align:center;white-space:nowrap}
+.wk-table thead th{background:rgba(255,255,255,.05);color:var(--mut);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0}
+.wk-table .row-label{text-align:left;font-weight:700;color:#dfe6ff;background:rgba(255,255,255,.03);position:sticky;left:0;min-width:90px}
+.wk-table .wk-col-now{background:rgba(56,189,248,.12)}
+.wk-table th.wk-col-now{background:rgba(56,189,248,.2);color:#7dd3fc}
+.wk-cell-plan{color:#fbbf24;font-weight:700}
+.wk-cell-done{color:#34d399;font-weight:700}
+.wk-cell-rate{font-size:10px}
+.wk-cell-rate.high{color:#34d399}.wk-cell-rate.mid{color:#fbbf24}.wk-cell-rate.low{color:#fb7185}
+.wk-table .wk-zero{color:var(--mut);opacity:.5}
+.wk-week-sub{font-size:9px;color:var(--mut);font-weight:400;display:block;margin-top:2px}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .cal-title{font-size:18px;font-weight:800;color:#fff;min-width:160px;text-align:center}
 .cal-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -214,6 +232,14 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="kpi k5" data-s="na"><div class="ic">❓</div><div class="val" id="kp5">0</div><div class="cap" data-i="kp5">No Cycle</div></div>
 </div>
 
+<!-- 주차별 점검 현황 표 -->
+<div class="wk-card">
+  <h3 data-i="wk_title">📋 주차별 점검 현황 (오늘 기준 ±2개월)</h3>
+  <div class="wk-wrap">
+    <table class="wk-table" id="wkTable"></table>
+  </div>
+</div>
+
 <!-- 캘린더 -->
 <div class="cal-card">
   <div class="cal-header">
@@ -307,7 +333,7 @@ const T={
     th_last:'최근 점검일',th_cycle:'주기(일)',th_next:'다음 예정일',th_dl:'잔여일',th_st:'상태',th_cnt:'이력수',
     st_overdue:'지연',st_soon:'임박',st_ok:'정상',st_na:'주기없음',
     no_data:'결과 없음',search_ph:'S/N, 모델, Line 검색...',
-    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',cal_today:'오늘',dow:['일','월','화','수','목','금','토'],months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],cal_more:'외 N건',dm_copy:'복사',dm_copied:'복사됨',adj_loaded:'조정 N건',adj_saving:'저장 중...',adj_saved:'A → B 로 조정 저장됨',adj_failed:'저장 실패 (새로고침 후 재시도)',lg_adjusted:'조정됨',drag_hint:'💡 점검 건을 다른 날짜로 드래그하면 일정이 조정되고 팀 전체에 공유됩니다 (✎ = 조정됨)'},
+    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',cal_today:'오늘',dow:['일','월','화','수','목','금','토'],months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],cal_more:'외 N건',dm_copy:'복사',dm_copied:'복사됨',adj_loaded:'조정 N건',adj_saving:'저장 중...',adj_saved:'A → B 로 조정 저장됨',adj_failed:'저장 실패 (새로고침 후 재시도)',lg_adjusted:'조정됨',drag_hint:'💡 점검 건을 다른 날짜로 드래그하면 일정이 조정되고 팀 전체에 공유됩니다 (✎ = 조정됨)',wk_title:'📋 주차별 점검 현황 (오늘 기준 ±2개월)',wk_week:'주차',wk_plan:'예정',wk_done:'완료',wk_rate:'완료율',wk_thisweek:'이번주'},
   en:{title:'🔧 Scrubber PM Schedule',sub:'Preventive Maintenance schedule based on TBM history',
     back:'← Main',refresh:'Refresh',loading:'Loading...',
     kp1:'Total Targets',kp2:'Overdue',kp3:'Due Soon',kp4:'Normal',kp5:'No Cycle',
@@ -316,7 +342,7 @@ const T={
     th_last:'Last PM',th_cycle:'Cycle(d)',th_next:'Next Due',th_dl:'D-day',th_st:'Status',th_cnt:'History',
     st_overdue:'Overdue',st_soon:'Due Soon',st_ok:'Normal',st_na:'No Cycle',
     no_data:'No results',search_ph:'Search S/N, Model, Line...',
-    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cal_more:'+N more',dm_copy:'Copy',dm_copied:'Copied',adj_loaded:'N adjusted',adj_saving:'Saving...',adj_saved:'Moved A → B',adj_failed:'Save failed (retry after refresh)',lg_adjusted:'Adjusted',drag_hint:'💡 Drag an item to another date to reschedule. Changes are shared with the whole team (✎ = adjusted)'},
+    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cal_more:'+N more',dm_copy:'Copy',dm_copied:'Copied',adj_loaded:'N adjusted',adj_saving:'Saving...',adj_saved:'Moved A → B',adj_failed:'Save failed (retry after refresh)',lg_adjusted:'Adjusted',drag_hint:'💡 Drag an item to another date to reschedule. Changes are shared with the whole team (✎ = adjusted)',wk_title:'📋 Weekly PM Status (±2 months from today)',wk_week:'Week',wk_plan:'Planned',wk_done:'Done',wk_rate:'Rate',wk_thisweek:'This week'},
   zh:{title:'🔧 洗涤器PM点检计划',sub:'基于定期点检(TBM)履历的预防性维护计划',
     back:'← 主页',refresh:'刷新',loading:'加载中...',
     kp1:'总点检对象',kp2:'点检延迟',kp3:'点检临近',kp4:'正常',kp5:'无周期',
@@ -325,7 +351,7 @@ const T={
     th_last:'最近点检日',th_cycle:'周期(天)',th_next:'下次预定日',th_dl:'剩余天',th_st:'状态',th_cnt:'履历数',
     st_overdue:'延迟',st_soon:'临近',st_ok:'正常',st_na:'无周期',
     no_data:'无结果',search_ph:'搜索S/N, 型号, Line...',
-    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',cal_today:'今天',dow:['日','一','二','三','四','五','六'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'其他N项',dm_copy:'复制',dm_copied:'已复制',adj_loaded:'调整N项',adj_saving:'保存中...',adj_saved:'已调整 A → B',adj_failed:'保存失败(刷新后重试)',lg_adjusted:'已调整',drag_hint:'💡 将点检项拖到其他日期即可调整日程并与全队共享 (✎ = 已调整)'},
+    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',cal_today:'今天',dow:['日','一','二','三','四','五','六'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'其他N项',dm_copy:'复制',dm_copied:'已复制',adj_loaded:'调整N项',adj_saving:'保存中...',adj_saved:'已调整 A → B',adj_failed:'保存失败(刷新后重试)',lg_adjusted:'已调整',drag_hint:'💡 将点检项拖到其他日期即可调整日程并与全队共享 (✎ = 已调整)',wk_title:'📋 周点检状况 (今天±2个月)',wk_week:'周次',wk_plan:'计划',wk_done:'完成',wk_rate:'完成率',wk_thisweek:'本周'},
   ja:{title:'🔧 スクラバーPM点検スケジュール',sub:'定期点検(TBM)履歴に基づく予防保全スケジュール',
     back:'← メイン',refresh:'更新',loading:'読み込み中...',
     kp1:'総点検対象',kp2:'点検遅延',kp3:'点検間近',kp4:'正常',kp5:'周期なし',
@@ -334,7 +360,7 @@ const T={
     th_last:'最近点検日',th_cycle:'周期(日)',th_next:'次回予定日',th_dl:'残日',th_st:'状態',th_cnt:'履歴数',
     st_overdue:'遅延',st_soon:'間近',st_ok:'正常',st_na:'周期なし',
     no_data:'結果なし',search_ph:'S/N, モデル, Line検索...',
-    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',cal_today:'今日',dow:['日','月','火','水','木','金','土'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'他N件',dm_copy:'コピー',dm_copied:'コピー済',adj_loaded:'調整N件',adj_saving:'保存中...',adj_saved:'A → B に調整',adj_failed:'保存失敗(更新後再試行)',lg_adjusted:'調整済',drag_hint:'💡 点検項目を他の日付にドラッグすると日程が調整されチーム全体に共有されます (✎ = 調整済)'}
+    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',cal_today:'今日',dow:['日','月','火','水','木','金','土'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'他N件',dm_copy:'コピー',dm_copied:'コピー済',adj_loaded:'調整N件',adj_saving:'保存中...',adj_saved:'A → B に調整',adj_failed:'保存失敗(更新後再試行)',lg_adjusted:'調整済',drag_hint:'💡 点検項目を他の日付にドラッグすると日程が調整されチーム全体に共有されます (✎ = 調整済)',wk_title:'📋 週別点検状況 (本日±2ヶ月)',wk_week:'週',wk_plan:'予定',wk_done:'完了',wk_rate:'完了率',wk_thisweek:'今週'}
 };
 
 let LANG='ko', RAW=[], SCHED=[], CHARTS={}, activeStatus='', sortK='dl', sortAsc=true;
@@ -365,7 +391,11 @@ function toDate(v){
   if(v===null||v===undefined||v==='')return null;
   const n=Number(v);
   if(!isNaN(n)&&n>20000&&n<80000)return new Date(Date.UTC(1899,11,30)+n*86400000);
-  const d=new Date(v);return isNaN(d)?null:d;
+  // YYYY-MM-DD 또는 YYYY-MM-DDTHH... 문자열은 UTC 자정으로 고정 파싱
+  const s=String(v).trim();
+  const m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  if(m){ return new Date(Date.UTC(+m[1], +m[2]-1, +m[3])); }
+  const d=new Date(s);return isNaN(d)?null:d;
 }
 function fmtDate(d){return d?d.toISOString().slice(0,10):'—';}
 
@@ -453,6 +483,9 @@ function render(){
 
   // 도넛: 상태 분포
   mkDonut('cStat',[t('st_overdue'),t('st_soon'),t('st_ok'),t('st_na')],[over,soon,ok,na],['#fb7185','#fbbf24','#34d399','#64748b']);
+
+  // 주차별 현황 표
+  renderWeeklyTable();
 
   // 캘린더
   renderCalendar();
@@ -547,6 +580,92 @@ function buildYearMonthSelectors(){
   mSel.innerHTML='';
   t('months').forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;mSel.appendChild(o);});
   mSel.value=CAL_M;
+}
+
+// ===== 주차별 점검 현황 (오늘 기준 ±2개월) =====
+function mondayOf(d){
+  // 해당 날짜가 속한 주의 월요일(UTC) 반환
+  const dt=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+  const dow=dt.getUTCDay(); // 0=일,1=월...
+  const diff=(dow===0?-6:1-dow); // 월요일로 보정
+  dt.setUTCDate(dt.getUTCDate()+diff);
+  return dt;
+}
+function weekKey(d){ return fmtDate(mondayOf(d)); }
+
+function renderWeeklyTable(){
+  const today=new Date();
+  const todayMon=mondayOf(today);
+  // 오늘 주 기준 전 8주 ~ 후 8주 (약 ±2개월)
+  const WEEKS_BACK=8, WEEKS_FWD=8;
+  const weeks=[];
+  for(let i=-WEEKS_BACK;i<=WEEKS_FWD;i++){
+    const wm=new Date(todayMon.getTime()+i*7*86400000);
+    weeks.push({mon:wm, key:fmtDate(wm), isNow:i===0});
+  }
+
+  // 예정 집계 (다음 예정일 기준)
+  const planMap={};
+  SCHED.forEach(x=>{ if(x.next){ const k=weekKey(x.next); planMap[k]=(planMap[k]||0)+1; } });
+
+  // 완료 집계 (실제 점검이력 Work Date 기준, TBM만)
+  const doneMap={};
+  RAW.forEach(r=>{
+    if((r[C.maint]||'').toString().trim().toUpperCase()!=='TBM')return;
+    const wd=toDate(r[C.work]); if(!wd)return;
+    const k=weekKey(wd);
+    doneMap[k]=(doneMap[k]||0)+1;
+  });
+
+  // 주 라벨 (M/D ~ M/D)
+  function weekLabel(wm){
+    const we=new Date(wm.getTime()+6*86400000);
+    const f=d=>`${d.getUTCMonth()+1}/${d.getUTCDate()}`;
+    return `${f(wm)}~${f(we)}`;
+  }
+
+  const tbl=document.getElementById('wkTable');
+  // 헤더
+  let html='<thead><tr><th class="row-label">'+t('wk_week')+'</th>';
+  weeks.forEach(w=>{
+    const nowCls=w.isNow?' wk-col-now':'';
+    html+=`<th class="${nowCls}">${weekLabel(w.mon)}<span class="wk-week-sub">${w.isNow?t('wk_thisweek'):''}</span></th>`;
+  });
+  html+='</tr></thead><tbody>';
+
+  // 예정 행
+  html+='<tr><td class="row-label">📅 '+t('wk_plan')+'</td>';
+  weeks.forEach(w=>{
+    const v=planMap[w.key]||0;
+    const nowCls=w.isNow?' wk-col-now':'';
+    html+=`<td class="${nowCls}"><span class="${v?'wk-cell-plan':'wk-zero'}">${v}</span></td>`;
+  });
+  html+='</tr>';
+
+  // 완료 행
+  html+='<tr><td class="row-label">✅ '+t('wk_done')+'</td>';
+  weeks.forEach(w=>{
+    const v=doneMap[w.key]||0;
+    const nowCls=w.isNow?' wk-col-now':'';
+    html+=`<td class="${nowCls}"><span class="${v?'wk-cell-done':'wk-zero'}">${v}</span></td>`;
+  });
+  html+='</tr>';
+
+  // 완료율 행 (완료/예정)
+  html+='<tr><td class="row-label">📊 '+t('wk_rate')+'</td>';
+  weeks.forEach(w=>{
+    const p=planMap[w.key]||0, d=doneMap[w.key]||0;
+    const nowCls=w.isNow?' wk-col-now':'';
+    let cell='—', rcls='';
+    if(p>0){
+      const rate=Math.round(d/p*100);
+      rcls=rate>=90?'high':rate>=60?'mid':'low';
+      cell=rate+'%';
+    }else if(d>0){ cell='—'; }
+    html+=`<td class="${nowCls}"><span class="wk-cell-rate ${rcls}">${cell}</span></td>`;
+  });
+  html+='</tr></tbody>';
+  tbl.innerHTML=html;
 }
 
 function renderCalendar(){
