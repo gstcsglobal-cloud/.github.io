@@ -74,18 +74,45 @@ body{font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
 .cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--mut);padding:6px 0;text-transform:uppercase;letter-spacing:1px}
 .cal-dow.sun{color:#fb7185}.cal-dow.sat{color:#60a5fa}
 .cal-cell{background:rgba(255,255,255,.03);border:1px solid var(--glassb);border-radius:10px;
-  min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px;overflow:hidden;transition:background .2s}
-.cal-cell.empty{background:transparent;border-color:transparent}
+  min-height:92px;max-height:140px;padding:6px;display:flex;flex-direction:column;gap:3px;overflow:hidden;transition:background .2s;cursor:pointer}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
 .cal-cell.today{border-color:var(--a4);box-shadow:0 0 0 1px var(--a4)}
 .cal-cell:hover:not(.empty){background:rgba(255,255,255,.06)}
-.cal-date{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:2px}
+.cal-date{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:2px;flex-shrink:0}
 .cal-date.sun{color:#fb7185}.cal-date.sat{color:#60a5fa}
-.cal-evt{font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
+.cal-events{display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;min-height:0}
+.cal-events::-webkit-scrollbar{width:4px}
+.cal-events::-webkit-scrollbar-thumb{background:var(--glassb);border-radius:4px}
+.cal-evt{font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;flex-shrink:0}
 .cal-evt.overdue{background:rgba(251,113,133,.22);color:#fda4af;border-left:2px solid #fb7185}
 .cal-evt.soon{background:rgba(251,191,36,.22);color:#fde68a;border-left:2px solid #fbbf24}
 .cal-evt.ok{background:rgba(52,211,153,.18);color:#6ee7b7;border-left:2px solid #34d399}
-.cal-more{font-size:9px;color:var(--mut);text-align:center;padding:1px}
-@media(max-width:768px){.cal-cell{min-height:70px}.cal-evt{font-size:8px}}
+.cal-count{font-size:9px;color:var(--a4);text-align:center;padding:2px;font-weight:700;flex-shrink:0}
+@media(max-width:768px){.cal-cell{min-height:70px;max-height:120px}.cal-evt{font-size:8px}}
+
+/* 날짜 상세 팝업 */
+#dayModal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#dayModal.open{display:flex}
+.dm-box{background:#1a1228;border:1px solid var(--glassb);border-radius:20px;
+  width:min(560px,92vw);max-height:82vh;display:flex;flex-direction:column;overflow:hidden}
+.dm-head{padding:18px 22px;border-bottom:1px solid var(--glassb);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dm-title{font-size:16px;font-weight:800;color:#fff}
+.dm-sub{font-size:12px;color:var(--mut);margin-top:2px}
+.dm-actions{display:flex;gap:8px}
+.dm-btn{background:rgba(255,255,255,.08);border:1px solid var(--glassb);border-radius:10px;
+  padding:8px 14px;color:var(--txt);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.dm-btn:hover{background:rgba(56,189,248,.15);border-color:var(--a4)}
+.dm-btn.copied{background:rgba(52,211,153,.2);border-color:var(--ok);color:var(--ok)}
+.dm-close{background:rgba(255,255,255,.08);border:1px solid var(--glassb);border-radius:10px;
+  width:34px;height:34px;color:var(--txt);font-size:16px;cursor:pointer}
+.dm-close:hover{background:rgba(251,113,133,.15);border-color:var(--bad)}
+.dm-body{padding:16px 22px;overflow-y:auto}
+.dm-body::-webkit-scrollbar{width:6px}.dm-body::-webkit-scrollbar-thumb{background:var(--glassb);border-radius:4px}
+.dm-text{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--glassb);border-radius:12px;
+  padding:14px;color:var(--txt);font-size:13px;font-family:'Consolas','Malgun Gothic',monospace;
+  line-height:1.7;white-space:pre;overflow-x:auto;user-select:text;resize:vertical;min-height:120px}
+.dm-empty{text-align:center;padding:30px;color:var(--mut)}
 .card{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;padding:18px;backdrop-filter:blur(14px)}
 .card h3{font-size:13px;font-weight:700;margin-bottom:12px;color:#dfe6ff}
 .card .cw{position:relative;height:220px}
@@ -114,9 +141,43 @@ tr:hover td{background:rgba(255,255,255,.04)}
 .loading{text-align:center;padding:60px;color:var(--mut);font-size:15px}
 @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}}
+
+/* 로그인 가드 */
+#loginOverlay{position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#1a1a2e);
+  background-size:400% 400%;animation:grad 18s ease infinite;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-family:'Segoe UI','Malgun Gothic',sans-serif}
+#loginOverlay.hidden{display:none}
+.login-logo{font-size:38px;font-weight:900;background:linear-gradient(90deg,#00cec9,#6c5ce7,#fd79a8);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;letter-spacing:-2px}
+.login-box{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:24px;
+  padding:36px 40px;backdrop-filter:blur(14px);text-align:center;min-width:300px}
+.login-box .lock{font-size:40px;margin-bottom:14px}
+.login-box .ltitle{font-size:16px;font-weight:700;margin-bottom:18px;color:#f5f6fa}
+.login-box input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+  border-radius:30px;padding:13px 20px;color:#f5f6fa;font-size:15px;outline:none;text-align:center}
+.login-box input:focus{border-color:#6c5ce7}
+.login-box input::placeholder{color:#a0a0c0}
+.login-box button{width:100%;margin-top:14px;background:linear-gradient(90deg,#6c5ce7,#00cec9);
+  border:none;border-radius:30px;padding:13px;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.login-box button:hover{opacity:.88}
+.login-err{color:#fd79a8;font-size:13px;margin-top:12px;min-height:18px;font-weight:600}
+@keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+  <div class="login-logo">GST Dashboard</div>
+  <div class="login-box">
+    <div class="lock">🔒</div>
+    <div class="ltitle" id="lgTitle">비밀번호를 입력하세요 / Enter password</div>
+    <input type="password" id="pwInput" placeholder="비밀번호 / Password" autocomplete="off">
+    <button onclick="checkPw()" id="lgBtn">로그인 / Login</button>
+    <div class="login-err" id="pwErr"></div>
+  </div>
+</div>
+
 
 <div class="header">
   <div>
@@ -164,6 +225,25 @@ tr:hover td{background:rgba(255,255,255,.04)}
     </div>
   </div>
   <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<!-- 날짜 상세 팝업 -->
+<div id="dayModal" onclick="if(event.target.id==='dayModal')closeDayModal()">
+  <div class="dm-box">
+    <div class="dm-head">
+      <div>
+        <div class="dm-title" id="dmTitle">2026-01-01</div>
+        <div class="dm-sub" id="dmSub"></div>
+      </div>
+      <div class="dm-actions">
+        <button class="dm-btn" id="dmCopy" onclick="copyDayText()" data-i="dm_copy">📋 복사</button>
+        <button class="dm-close" onclick="closeDayModal()">✕</button>
+      </div>
+    </div>
+    <div class="dm-body">
+      <textarea class="dm-text" id="dmText" readonly></textarea>
+    </div>
+  </div>
 </div>
 
 <div class="grid3">
@@ -217,7 +297,7 @@ const T={
     th_last:'최근 점검일',th_cycle:'주기(일)',th_next:'다음 예정일',th_dl:'잔여일',th_st:'상태',th_cnt:'이력수',
     st_overdue:'지연',st_soon:'임박',st_ok:'정상',st_na:'주기없음',
     no_data:'결과 없음',search_ph:'S/N, 모델, Line 검색...',
-    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',cal_today:'오늘',dow:['일','월','화','수','목','금','토'],months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],cal_more:'외 N건'},
+    f_site:'전체 SITE',f_line:'전체 LINE',f_model:'전체 모델',f_stat:'전체 상태',cal_today:'오늘',dow:['일','월','화','수','목','금','토'],months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],cal_more:'외 N건',dm_copy:'복사',dm_copied:'복사됨'},
   en:{title:'🔧 Scrubber PM Schedule',sub:'Preventive Maintenance schedule based on TBM history',
     back:'← Main',refresh:'Refresh',loading:'Loading...',
     kp1:'Total Targets',kp2:'Overdue',kp3:'Due Soon',kp4:'Normal',kp5:'No Cycle',
@@ -226,7 +306,7 @@ const T={
     th_last:'Last PM',th_cycle:'Cycle(d)',th_next:'Next Due',th_dl:'D-day',th_st:'Status',th_cnt:'History',
     st_overdue:'Overdue',st_soon:'Due Soon',st_ok:'Normal',st_na:'No Cycle',
     no_data:'No results',search_ph:'Search S/N, Model, Line...',
-    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cal_more:'+N more'},
+    f_site:'All SITE',f_line:'All LINE',f_model:'All Model',f_stat:'All Status',cal_today:'Today',dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cal_more:'+N more',dm_copy:'Copy',dm_copied:'Copied'},
   zh:{title:'🔧 洗涤器PM点检计划',sub:'基于定期点检(TBM)履历的预防性维护计划',
     back:'← 主页',refresh:'刷新',loading:'加载中...',
     kp1:'总点检对象',kp2:'点检延迟',kp3:'点检临近',kp4:'正常',kp5:'无周期',
@@ -235,7 +315,7 @@ const T={
     th_last:'最近点检日',th_cycle:'周期(天)',th_next:'下次预定日',th_dl:'剩余天',th_st:'状态',th_cnt:'履历数',
     st_overdue:'延迟',st_soon:'临近',st_ok:'正常',st_na:'无周期',
     no_data:'无结果',search_ph:'搜索S/N, 型号, Line...',
-    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',cal_today:'今天',dow:['日','一','二','三','四','五','六'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'其他N项'},
+    f_site:'全部SITE',f_line:'全部LINE',f_model:'全部型号',f_stat:'全部状态',cal_today:'今天',dow:['日','一','二','三','四','五','六'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'其他N项',dm_copy:'复制',dm_copied:'已复制'},
   ja:{title:'🔧 スクラバーPM点検スケジュール',sub:'定期点検(TBM)履歴に基づく予防保全スケジュール',
     back:'← メイン',refresh:'更新',loading:'読み込み中...',
     kp1:'総点検対象',kp2:'点検遅延',kp3:'点検間近',kp4:'正常',kp5:'周期なし',
@@ -244,7 +324,7 @@ const T={
     th_last:'最近点検日',th_cycle:'周期(日)',th_next:'次回予定日',th_dl:'残日',th_st:'状態',th_cnt:'履歴数',
     st_overdue:'遅延',st_soon:'間近',st_ok:'正常',st_na:'周期なし',
     no_data:'結果なし',search_ph:'S/N, モデル, Line検索...',
-    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',cal_today:'今日',dow:['日','月','火','水','木','金','土'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'他N件'}
+    f_site:'全SITE',f_line:'全LINE',f_model:'全モデル',f_stat:'全ステータス',cal_today:'今日',dow:['日','月','火','水','木','金','土'],months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],cal_more:'他N件',dm_copy:'コピー',dm_copied:'コピー済'}
 };
 
 let LANG='ko', RAW=[], SCHED=[], CHARTS={}, activeStatus='', sortK='dl', sortAsc=true;
@@ -491,24 +571,78 @@ function renderCalendar(){
     // 긴급순 정렬 (지연>임박>정상)
     const order={overdue:0,soon:1,ok:2,na:3};
     evts.sort((a,b)=>order[a.st]-order[b.st]);
-    const showN=3;
-    evts.slice(0,showN).forEach(x=>{
-      const ev=document.createElement('div');
-      ev.className='cal-evt '+x.st;
-      const chTxt=(x.ch&&x.ch!=='-')?` (${x.ch})`:'';
-      ev.textContent=x.sn+chTxt;
-      ev.title=`${x.sn}${chTxt} · ${x.line} · ${x.model}`;
-      cell.appendChild(ev);
-    });
-    if(evts.length>showN){
-      const more=document.createElement('div');
-      more.className='cal-more';
-      more.textContent=t('cal_more').replace('N',evts.length-showN);
-      cell.appendChild(more);
+
+    if(evts.length){
+      // 개수 표시
+      const cnt=document.createElement('div');
+      cnt.className='cal-count';
+      cnt.textContent='● '+evts.length;
+      cell.appendChild(cnt);
+      // 스크롤 컨테이너에 전체 이벤트
+      const evBox=document.createElement('div');
+      evBox.className='cal-events';
+      evts.forEach(x=>{
+        const ev=document.createElement('div');
+        ev.className='cal-evt '+x.st;
+        const chTxt=(x.ch&&x.ch!=='-')?` (${x.ch})`:'';
+        ev.textContent=x.sn+chTxt;
+        ev.title=`${x.sn}${chTxt} · ${x.line} · ${x.model}`;
+        evBox.appendChild(ev);
+      });
+      cell.appendChild(evBox);
+      // 칸 클릭 → 팝업
+      cell.onclick=()=>openDayModal(CAL_Y,CAL_M,day,evts);
     }
     grid.appendChild(cell);
   }
 }
+
+// 날짜 상세 팝업
+function openDayModal(y,m,day,evts){
+  const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  document.getElementById('dmTitle').textContent=dateStr;
+  const order={overdue:0,soon:1,ok:2,na:3};
+  const sorted=[...evts].sort((a,b)=>order[a.st]-order[b.st]);
+
+  // 상태별 카운트
+  const oc=sorted.filter(x=>x.st==='overdue').length;
+  const sc=sorted.filter(x=>x.st==='soon').length;
+  const okc=sorted.filter(x=>x.st==='ok').length;
+  document.getElementById('dmSub').textContent=
+    `${t('st_overdue')} ${oc} · ${t('st_soon')} ${sc} · ${t('st_ok')} ${okc}  (${t('kp1')} ${sorted.length})`;
+
+  // 복사용 텍스트 (탭 구분 - 엑셀 붙여넣기 편하게)
+  const stLabel={overdue:t('st_overdue'),soon:t('st_soon'),ok:t('st_ok'),na:t('st_na')};
+  const header=['S/N','Chamber','SITE','LINE','Model','Group',t('th_st')].join('\t');
+  const lines=sorted.map(x=>{
+    const ch=(x.ch&&x.ch!=='-')?x.ch:'-';
+    return [x.sn,ch,x.site,x.line,x.model,x.group,stLabel[x.st]].join('\t');
+  });
+  document.getElementById('dmText').value=header+'\n'+lines.join('\n');
+  // 복사 버튼 초기화
+  const cp=document.getElementById('dmCopy');
+  cp.classList.remove('copied'); cp.textContent='📋 '+t('dm_copy');
+  document.getElementById('dayModal').classList.add('open');
+}
+
+function closeDayModal(){ document.getElementById('dayModal').classList.remove('open'); }
+
+function copyDayText(){
+  const ta=document.getElementById('dmText');
+  ta.select(); ta.setSelectionRange(0,99999);
+  let done=false;
+  try{ done=document.execCommand('copy'); }catch(e){}
+  if(navigator.clipboard&&!done){
+    navigator.clipboard.writeText(ta.value).then(()=>markCopied()).catch(()=>{});
+  }else if(done){ markCopied(); }
+}
+function markCopied(){
+  const cp=document.getElementById('dmCopy');
+  cp.classList.add('copied'); cp.textContent='✅ '+t('dm_copied');
+  setTimeout(()=>{cp.classList.remove('copied');cp.textContent='📋 '+t('dm_copy');},1800);
+}
+// ESC로 팝업 닫기
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDayModal();});
 
 function calPrev(){ CAL_M--; if(CAL_M<0){CAL_M=11;CAL_Y--;} renderCalendar(); }
 function calNext(){ CAL_M++; if(CAL_M>11){CAL_M=0;CAL_Y++;} renderCalendar(); }
@@ -547,6 +681,33 @@ function mkStackBar(id,labels,datasets){
 
 applyLang();
 loadData();
+</script>
+
+<script>
+(function(){
+  const PASSWORD='gst1234!';
+  function isAuthed(){try{return sessionStorage.getItem('gst_auth')==='1';}catch(e){return false;}}
+  window.checkPw=function(){
+    const v=document.getElementById('pwInput').value;
+    if(v===PASSWORD){
+      try{sessionStorage.setItem('gst_auth','1');}catch(e){}
+      document.getElementById('loginOverlay').classList.add('hidden');
+    }else{
+      document.getElementById('pwErr').textContent='비밀번호가 올바르지 않습니다 / Incorrect';
+      document.getElementById('pwInput').value='';
+    }
+  };
+  function init(){
+    const ov=document.getElementById('loginOverlay');
+    if(!ov)return;
+    if(isAuthed()){ov.classList.add('hidden');return;}
+    const inp=document.getElementById('pwInput');
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPw();});
+    setTimeout(()=>inp.focus(),100);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
 </script>
 </body>
 </html>
