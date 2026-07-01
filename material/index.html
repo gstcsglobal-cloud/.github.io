@@ -801,10 +801,6 @@ async function loadData(){
   }
   btn.disabled = false;
 }
-  
-  if (btn) btn.disabled = false;
-}
-}
 // ===== 이벤트 =====
 function onSlicer(){F.country=document.getElementById('sl-country').value;F.customer=document.getElementById('sl-customer').value;F.line=document.getElementById('sl-line').value;F.process=document.getElementById('sl-process').value;F.detail=document.getElementById('sl-detail').value;F.eq=document.getElementById('sl-eq').value;F.mat=document.getElementById('sl-mat').value;F.dtFrom=document.getElementById('dtFrom').value;F.dtTo=document.getElementById('dtTo').value;render()}
 document.getElementById('search').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();render()});
