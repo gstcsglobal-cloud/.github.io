@@ -670,9 +670,23 @@ async function loadData() {
   try {
     console.log('===== [GST] 데이터 로드 시작 =====');
     
-    const res = await fetch(SHEET_URL + '&t=' + Date.now());
-    console.log('[GST] fetch 응답:', res.status);
+    // 🔥 타임아웃 추가 (30초)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     
+    let res;
+    try {
+      res = await fetch(SHEET_URL + '&t=' + Date.now(), { signal: controller.signal });
+      clearTimeout(timeoutId);
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') {
+        throw new Error('요청 시간 초과 (30초). 네트워크 또는 CORS를 확인하세요.');
+      }
+      throw fetchErr;
+    }
+    
+    console.log('[GST] fetch 응답:', res.status);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     
     const text = await res.text();
@@ -685,7 +699,6 @@ async function loadData() {
     console.log('[GST] 헤더:', header);
     console.log('[GST] 데이터 행 수:', rows.length);
 
-    // ===== 헤더 찾기 =====
     function findIdx(keywords) {
       for (let k of keywords) {
         const idx = header.findIndex(h => String(h).toLowerCase().includes(k.toLowerCase()));
@@ -713,21 +726,17 @@ async function loadData() {
       workDate: findIdx(['일자', 'date', 'day']),
       daysPaid: findIdx(['유상', 'paid']),
       daysPrev: findIdx(['전교체', 'prev']),
-      // 🔥 유무상: 여러 키워드로 찾기
       pf: findIdx(['유무상', 'pf', 'paid/free', '구분']),
       freeReason: findIdx(['무상사유', 'free reason'])
     };
 
-    // ===== 데이터 매핑 =====
     const mapped = [];
     
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
-      // 최소한의 컬럼이 있는지 확인
       const hasData = Object.values(map).some(idx => idx >= 0 && r[idx] && String(r[idx]).trim() !== '');
       if (!hasData) continue;
       
-      // 숫자 파싱 (row를 인자로 받음)
       const parseNum = (idx) => {
         if (idx < 0) return null;
         const v = r[idx];
@@ -740,13 +749,12 @@ async function loadData() {
       const custVal = map.customer >= 0 ? String(r[map.customer] || '') : '';
       const matNameVal = map.matName >= 0 ? String(r[map.matName] || '').trim() : '';
       
-      // 자재명이 없으면 스킵
       if (!matNameVal) continue;
       
       const pfVal = map.pf >= 0 ? String(r[map.pf] || '').trim() : '';
       
-      const item = {
-        country: guessCountry(opVal),  // ✅ extractCountry -> guessCountry로 수정
+      mapped.push({
+        country: guessCountry(opVal),
         customer: mapCustomer(custVal),
         line: map.line >= 0 ? String(r[map.line] || '').trim() : '',
         process: map.process >= 0 ? String(r[map.process] || '').trim() : '',
@@ -759,18 +767,15 @@ async function loadData() {
         workDate: map.workDate >= 0 ? toDate(r[map.workDate]) : null,
         daysPaid: parseNum(map.daysPaid),
         daysPrev: parseNum(map.daysPrev),
-        pf: pfVal,  // 🔥 유무상 값 그대로 저장
+        pf: pfVal,
         freeReason: map.freeReason >= 0 ? String(r[map.freeReason] || '').trim() : '',
         year: map.workDate >= 0 ? (toDate(r[map.workDate]) ? toDate(r[map.workDate]).getFullYear() : null) : null,
         month: map.workDate >= 0 ? (toDate(r[map.workDate]) ? toDate(r[map.workDate]).getMonth() + 1 : null) : null
-      };
-      
-      mapped.push(item);
+      });
     }
 
     DATA = mapped;
     
-    // ===== 디버깅: 유무상 값 확인 =====
     const pfValues = [...new Set(DATA.map(x => x.pf).filter(Boolean))];
     console.log('[GST] 유무상 컬럼 값들:', pfValues);
     console.log('[GST] 유상 데이터 수:', DATA.filter(x => x.pf === '유상').length);
@@ -778,7 +783,7 @@ async function loadData() {
     console.log('[GST] 총 데이터 수:', DATA.length);
     
     if (DATA.length === 0) {
-      status.textContent = '⚠️ 데이터가 없습니다. 콘솔을 확인하세요.';
+      status.textContent = '⚠️ 데이터가 없습니다. 헤더 매핑을 확인하세요.';
       status.className = 'status err';
       if (btn) btn.disabled = false;
       return;
@@ -798,6 +803,7 @@ async function loadData() {
   }
   
   if (btn) btn.disabled = false;
+}
 }
 // ===== 이벤트 =====
 function onSlicer(){F.country=document.getElementById('sl-country').value;F.customer=document.getElementById('sl-customer').value;F.line=document.getElementById('sl-line').value;F.process=document.getElementById('sl-process').value;F.detail=document.getElementById('sl-detail').value;F.eq=document.getElementById('sl-eq').value;F.mat=document.getElementById('sl-mat').value;F.dtFrom=document.getElementById('dtFrom').value;F.dtTo=document.getElementById('dtTo').value;render()}
