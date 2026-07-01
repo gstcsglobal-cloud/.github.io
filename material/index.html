@@ -486,7 +486,13 @@ const PAL=['#2dd4bf','#38bdf8','#a78bfa','#fbbf24','#34d399','#fb7185'];
 
 const CUSTOMER_MAP={'powerchip':'PSMC','taiwan-asia':'TASC','taiwan asia':'TASC','taiwan-asia semiconductor':'TASC','powerchip technology':'PSMC'};
 function mapCustomer(n){if(!n)return '';const l=n.toLowerCase();for(const[k,v]of Object.entries(CUSTOMER_MAP)){if(l.includes(k))return v}return n.toUpperCase().slice(0,6)}
-function extractCountry(v){const s=String(v||'').toUpperCase();if(s.includes('JAPAN'))return'JAPAN';if(s.includes('TAIWAN'))return'TAIWAN';if(s.includes('KOREA'))return'KOREA';if(s.includes('CHINA'))return'CHINA';const m=s.match(/GST\s*([A-Z]+)/);return m&&m[1]?m[1]:'기타'}
+function guessCountry(op){
+  if(!op)return '—';
+  const m=op.match(/GST\s+([A-Z]+)/i);
+  if(m){const c=m[1].toUpperCase();
+    const map={TAIWAN:'TAIWAN',KOREA:'KOREA',CHINA:'CHINA',JAPAN:'JAPAN',US:'USA',USA:'USA',SINGAPORE:'SINGAPORE'};
+    return map[c]||c;}
+  return op;}
 
 // ===== 언어 =====
 const T={ko:{title:'📦 자재 실적 대시보드',sub:'자재 교체 실적 · 사용주기 · 유무상 분석',back:'← 메인',refresh:'새로고침',loading:'데이터 불러오는 중...',
@@ -657,15 +663,145 @@ renderCrossExclChips();
 const labels=rowF,barData=rowF.map(r=>matrix[r]._t||0),totalSum=rowF.reduce((s,r)=>s+matrix[r]._t,0),pctData=rowF.map(r=>totalSum>0?Math.round(matrix[r]._t/totalSum*100):0);
 const ctx=document.getElementById('crossChart');if(CROSS_CHART_INSTANCE){CROSS_CHART_INSTANCE.destroy()}CROSS_CHART_INSTANCE=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'건수 (Bar)',type:'bar',data:barData,backgroundColor:'rgba(45,212,191,0.6)',borderColor:'#2dd4bf',borderWidth:2,borderRadius:4,order:2},{label:'비율 % (Line)',type:'line',data:pctData,borderColor:'#fbbf24',backgroundColor:'transparent',borderWidth:3,pointBackgroundColor:'#fbbf24',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:4,tension:0.3,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:function(ctx){return ctx.datasetIndex===0?'건수: '+ctx.raw:'비율: '+ctx.raw+'%'}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},y:{position:'left',ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'건수',color:'#94a3b8',font:{size:10}}},y1:{position:'right',ticks:{color:'#94a3b8',font:{size:9},callback:v=>v+'%'},grid:{display:false},title:{display:true,text:'비율 (%)',color:'#94a3b8',font:{size:10}},min:0,max:Math.max(100,Math.max(...pctData)*1.2)}}}})}
 
-// ===== 데이터 로드 (수정됨) =====
-async function loadData(){const status=document.getElementById('status');try{status.textContent='⏳ 데이터 로딩 중...';const res=await fetch(SHEET_URL+'&t='+Date.now());const text=await res.text();const parsed=Papa.parse(text,{skipEmptyLines:true,header:false});const rows=parsed.data.slice(1);const header=parsed.data[0]||[];
-function findIdx(kw){for(let k of kw){const idx=header.findIndex(h=>String(h).toLowerCase().includes(k.toLowerCase()));if(idx!==-1)return idx}return -1}
-const map={op:findIdx(['작업장','op','plant']),customer:findIdx(['고객','customer','client']),line:findIdx(['라인','line']),process:findIdx(['공정','process']),detail:findIdx(['세부','detail','sub']),mainEq:findIdx(['메인','main','equipment']),eq:findIdx(['호기','eq','equip','설비']),qty:findIdx(['수량','qty','quantity']),matName:findIdx(['자재명','material name','품명']),matCode:findIdx(['자재코드','material code','품번']),reason:findIdx(['사유','reason','cause']),workDate:findIdx(['일자','date','day']),daysPaid:findIdx(['유상','paid']),daysPrev:findIdx(['전교체','prev']),pf:findIdx(['유무상','pf','paid/free']),freeReason:findIdx(['무상사유','free reason'])}
-const parseNum=(idx)=>{if(idx<0)return null;const v=r[idx];if(v===undefined||v===null||String(v).trim()==='')return null;const n=Number(v);return isNaN(n)?null:n};
-const mapped=rows.filter(r=>r.length>Math.max(...Object.values(map).filter(v=>v>=0))).map(r=>{const opVal=map.op>=0?String(r[map.op]||''):'';const custVal=map.customer>=0?String(r[map.customer]||''):'';return{country:extractCountry(opVal),customer:mapCustomer(custVal),line:map.line>=0?String(r[map.line]||''):'',process:map.process>=0?String(r[map.process]||''):'',detail:map.detail>=0?String(r[map.detail]||''):'',eq:map.eq>=0?String(r[map.eq]||''):(map.mainEq>=0?String(r[map.mainEq]||''):''),matName:map.matName>=0?String(r[map.matName]||''):'',matCode:map.matCode>=0?String(r[map.matCode]||''):'',qty:parseNum(map.qty)||1,reason:map.reason>=0?String(r[map.reason]||''):'',workDate:map.workDate>=0?toDate(r[map.workDate]):null,daysPaid:parseNum(map.daysPaid),daysPrev:parseNum(map.daysPrev),pf:map.pf>=0?String(r[map.pf]||''):'',freeReason:map.freeReason>=0?String(r[map.freeReason]||''):'',year:map.workDate>=0?(toDate(r[map.workDate])?toDate(r[map.workDate]).getFullYear():null):null,month:map.workDate>=0?(toDate(r[map.workDate])?toDate(r[map.workDate]).getMonth()+1:null):null}});
-DATA=mapped.filter(x=>x.matName&&x.matName.trim()!=='');
-status.textContent='✅ Load OK ('+DATA.length+'건)';if(DATA.length===0){status.textContent='⚠️ 데이터가 없습니다. CSV 헤더를 확인해주세요.'}rebuildFilters();isFirstRender=true;render()}catch(e){status.textContent='❌ '+e.message;console.error(e)}}
+// ===== 데이터 로드 (완전 수정 버전) =====
+async function loadData() {
+  const status = document.getElementById('status');
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.disabled = true;
+  status.textContent = '⏳ 데이터 로딩 중...';
+  
+  try {
+    console.log('===== [GST] 데이터 로드 시작 =====');
+    
+    const res = await fetch(SHEET_URL + '&t=' + Date.now());
+    console.log('[GST] fetch 응답:', res.status);
+    
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    
+    const text = await res.text();
+    console.log('[GST] CSV 크기:', text.length, 'bytes');
+    
+    const parsed = Papa.parse(text, { skipEmptyLines: true, header: false });
+    const rows = parsed.data.slice(1);
+    const header = parsed.data[0] || [];
+    
+    console.log('[GST] 헤더:', header);
+    console.log('[GST] 데이터 행 수:', rows.length);
 
+    // ===== 헤더 찾기 =====
+    function findIdx(keywords) {
+      for (let k of keywords) {
+        const idx = header.findIndex(h => String(h).toLowerCase().includes(k.toLowerCase()));
+        if (idx !== -1) {
+          console.log('  ✅ 찾음: "' + k + '" → 인덱스 ' + idx);
+          return idx;
+        }
+      }
+      console.log('  ❌ 못 찾음:', keywords);
+      return -1;
+    }
+
+    const map = {
+      op: findIdx(['작업장', 'op', 'plant']),
+      customer: findIdx(['고객', 'customer', 'client']),
+      line: findIdx(['라인', 'line']),
+      process: findIdx(['공정', 'process']),
+      detail: findIdx(['세부', 'detail', 'sub']),
+      mainEq: findIdx(['메인', 'main', 'equipment']),
+      eq: findIdx(['호기', 'eq', 'equip', '설비']),
+      qty: findIdx(['수량', 'qty', 'quantity']),
+      matName: findIdx(['자재명', 'material name', '품명']),
+      matCode: findIdx(['자재코드', 'material code', '품번']),
+      reason: findIdx(['사유', 'reason', 'cause']),
+      workDate: findIdx(['일자', 'date', 'day']),
+      daysPaid: findIdx(['유상', 'paid']),
+      daysPrev: findIdx(['전교체', 'prev']),
+      // 🔥 유무상: 여러 키워드로 찾기
+      pf: findIdx(['유무상', 'pf', 'paid/free', '구분']),
+      freeReason: findIdx(['무상사유', 'free reason'])
+    };
+
+    // ===== 데이터 매핑 =====
+    const mapped = [];
+    
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      // 최소한의 컬럼이 있는지 확인
+      const hasData = Object.values(map).some(idx => idx >= 0 && r[idx] && String(r[idx]).trim() !== '');
+      if (!hasData) continue;
+      
+      // 숫자 파싱 (row를 인자로 받음)
+      const parseNum = (idx) => {
+        if (idx < 0) return null;
+        const v = r[idx];
+        if (v === undefined || v === null || String(v).trim() === '') return null;
+        const n = Number(v);
+        return isNaN(n) ? null : n;
+      };
+      
+      const opVal = map.op >= 0 ? String(r[map.op] || '') : '';
+      const custVal = map.customer >= 0 ? String(r[map.customer] || '') : '';
+      const matNameVal = map.matName >= 0 ? String(r[map.matName] || '').trim() : '';
+      
+      // 자재명이 없으면 스킵
+      if (!matNameVal) continue;
+      
+      const pfVal = map.pf >= 0 ? String(r[map.pf] || '').trim() : '';
+      
+      const item = {
+        country: extractCountry(opVal),
+        customer: mapCustomer(custVal),
+        line: map.line >= 0 ? String(r[map.line] || '').trim() : '',
+        process: map.process >= 0 ? String(r[map.process] || '').trim() : '',
+        detail: map.detail >= 0 ? String(r[map.detail] || '').trim() : '',
+        eq: map.eq >= 0 ? String(r[map.eq] || '').trim() : (map.mainEq >= 0 ? String(r[map.mainEq] || '').trim() : ''),
+        matName: matNameVal,
+        matCode: map.matCode >= 0 ? String(r[map.matCode] || '').trim() : '',
+        qty: parseNum(map.qty) || 1,
+        reason: map.reason >= 0 ? String(r[map.reason] || '').trim() : '',
+        workDate: map.workDate >= 0 ? toDate(r[map.workDate]) : null,
+        daysPaid: parseNum(map.daysPaid),
+        daysPrev: parseNum(map.daysPrev),
+        pf: pfVal,  // 🔥 유무상 값 그대로 저장
+        freeReason: map.freeReason >= 0 ? String(r[map.freeReason] || '').trim() : '',
+        year: map.workDate >= 0 ? (toDate(r[map.workDate]) ? toDate(r[map.workDate]).getFullYear() : null) : null,
+        month: map.workDate >= 0 ? (toDate(r[map.workDate]) ? toDate(r[map.workDate]).getMonth() + 1 : null) : null
+      };
+      
+      mapped.push(item);
+    }
+
+    DATA = mapped;
+    
+    // ===== 디버깅: 유무상 값 확인 =====
+    const pfValues = [...new Set(DATA.map(x => x.pf).filter(Boolean))];
+    console.log('[GST] 유무상 컬럼 값들:', pfValues);
+    console.log('[GST] 유상 데이터 수:', DATA.filter(x => x.pf === '유상').length);
+    console.log('[GST] 무상 데이터 수:', DATA.filter(x => x.pf === '무상').length);
+    console.log('[GST] 총 데이터 수:', DATA.length);
+    
+    if (DATA.length === 0) {
+      status.textContent = '⚠️ 데이터가 없습니다. 콘솔을 확인하세요.';
+      status.className = 'status err';
+      if (btn) btn.disabled = false;
+      return;
+    }
+    
+    status.textContent = '✅ Load OK (' + DATA.length + '건)';
+    status.className = 'status ok';
+    
+    rebuildFilters();
+    isFirstRender = true;
+    render();
+    
+  } catch (e) {
+    console.error('[GST] 오류:', e);
+    status.textContent = '❌ ' + e.message;
+    status.className = 'status err';
+  }
+  
+  if (btn) btn.disabled = false;
+}
 // ===== 이벤트 =====
 function onSlicer(){F.country=document.getElementById('sl-country').value;F.customer=document.getElementById('sl-customer').value;F.line=document.getElementById('sl-line').value;F.process=document.getElementById('sl-process').value;F.detail=document.getElementById('sl-detail').value;F.eq=document.getElementById('sl-eq').value;F.mat=document.getElementById('sl-mat').value;F.dtFrom=document.getElementById('dtFrom').value;F.dtTo=document.getElementById('dtTo').value;render()}
 document.getElementById('search').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();render()});
