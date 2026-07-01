@@ -486,7 +486,7 @@ const PAL=['#2dd4bf','#38bdf8','#a78bfa','#fbbf24','#34d399','#fb7185'];
 
 const CUSTOMER_MAP={'powerchip':'PSMC','taiwan-asia':'TASC','taiwan asia':'TASC','taiwan-asia semiconductor':'TASC','powerchip technology':'PSMC'};
 function mapCustomer(n){if(!n)return '';const l=n.toLowerCase();for(const[k,v]of Object.entries(CUSTOMER_MAP)){if(l.includes(k))return v}return n.toUpperCase().slice(0,6)}
-function extraCountry(op){
+function guessCountry(op){
   if(!op)return '—';
   const m=op.match(/GST\s+([A-Z]+)/i);
   if(m){const c=m[1].toUpperCase();
@@ -661,7 +661,7 @@ tbody.innerHTML=rowF.map(r=>'<tr><td class="row-label">'+r+'</td>'+colF.map(c=>{
 '<tr style="background:rgba(255,255,255,.06);font-weight:700;"><td>Total</td>'+colF.map(c=>{let s=0;rowF.forEach(r=>s+=matrix[r][c]);return'<td class="num" style="color:#fbbf24;">'+s+'</td>'}).join('')+'<td class="num" style="color:#fff;background:rgba(251,191,36,.15);">'+rowF.reduce((s,r)=>s+matrix[r]._t,0)+'</td></tr>';
 renderCrossExclChips();
 const labels=rowF,barData=rowF.map(r=>matrix[r]._t||0),totalSum=rowF.reduce((s,r)=>s+matrix[r]._t,0),pctData=rowF.map(r=>totalSum>0?Math.round(matrix[r]._t/totalSum*100):0);
-const ctx=document.getElementById('crossChart');if(CROSS_CHART_INSTANCE){CROSS_CHART_INSTANCE.destroy()}CROSS_CHART_INSTANCE=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'건수 (Bar)',type:'bar',data:barData,backgroundColor:'rgba(45,212,191,0.6)',borderColor:'#2dd4bf',borderWidth:2,borderRadius:4,order:2},{label:'비율 % (Line)',type:'line',data:pctData,borderColor:'#fbbf24',backgroundColor:'transparent',borderWidth:3,pointBackgroundColor:'#fbbf24',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:4,tension:0.3,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:function(ctx){return ctx.datasetIndex===0?'건수: '+ctx.raw:'비율: '+ctx.raw+'%'}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},y:{position:'left',ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'건수',color:'#94a3b8',font:{size:10}}},y1:{position:'right',ticks:{color:'#94a3b8',font:{size:9},callback:v=>v+'%'},grid:{display:false},title:{display:true,text:'비율 (%)',color:'#94a3b8',font:{size:10}},min:0,max:Math.max(100,Math.max(...pctData)*1.2)}}}})}
+const ctx=document.getElementById('crossChart');if(CROSS_CHART_INSTANCE){CROSS_CHART_INSTANCE.destroy()}CROSS_CHART_INSTANCE=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'건수 (Bar)',type:'bar',data:barData,backgroundColor:'rgba(45,212,191,0.6)',borderColor:'#2dd4bf',borderWidth:2,borderRadius:4,order:2},{label:'비율 % (Line)',type:'line',data:pctData,borderColor:'#fbbf24',backgroundColor:'transparent',borderWidth:3,pointBackgroundColor:'#fbbf24',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:4,tension:0.3,yAxisID:'y1',order:1}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{labels:{color:'#cbd5e1',font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:function(ctx){return ctx.datasetIndex===0?'건수: '+ctx.raw:'비율: '+ctx.raw+'%'}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},y:{position:'left',ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'건수',color:'#94a3b8',font:{size:10}}},y1:{position:'right',ticks:{color:'#94a3b8',font:{size:9},callback:v=>v+'%'},grid:{display:false},title:{display:true,text:'비율 (%)',color:'#94a3b8',font:{size:10}},min:0,max:Math.max(100,Math.max(...pctData)*1.2)}}})}
 
 // ===== 데이터 로드 (완전 수정 버전) =====
 async function loadData() {
@@ -749,7 +749,7 @@ async function loadData() {
       const pfVal = map.pf >= 0 ? String(r[map.pf] || '').trim() : '';
       
       const item = {
-        country: extractCountry(opVal),
+        country: guessCountry(opVal),  // ✅ extractCountry -> guessCountry로 수정
         customer: mapCustomer(custVal),
         line: map.line >= 0 ? String(r[map.line] || '').trim() : '',
         process: map.process >= 0 ? String(r[map.process] || '').trim() : '',
