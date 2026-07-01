@@ -192,8 +192,46 @@ tr:hover td{background:rgba(255,255,255,.04)}
   <div class="kpi k6"><div class="ic">🖥️</div><div class="val" id="kp6">0</div><div class="cap" data-i="kp6">설비 대수</div></div>
 </div>
 
+<div class="kpi k6"><div class="ic">🖥️</div><div class="val" id="kp6">0</div><div class="cap" data-i="kp6">설비 대수</div></div>
+</div> <div class="tablecard" id="crossAnalysisCard" style="margin-bottom: 20px; padding: 16px 20px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div style="cursor: pointer; user-select: none;" onclick="toggleCrossTableBody()">
+      <h3 style="font-size: 15px; font-weight: 800; color: #5eead4; display: flex; align-items: center; gap: 6px;">
+        🔀 다차원 교차 분석 (Cross-Tab) <span id="crossToggleArrow" style="font-size: 12px; color: var(--mut);">[ 열기 ▾ ]</span>
+      </h3>
+    </div>
+    
+    <div id="crossControls" style="display: none; flex-wrap: wrap; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span class="tb-label">행(Row):</span>
+        <select id="crossRow" onchange="renderCrossTable()" style="background:rgba(255,255,255,.06);border:1px solid var(--glassb);border-radius:10px;padding:5px 8px;color:var(--txt);font-size:11px;outline:none;">
+          <option value="matName" selected>자재명</option>
+          <option value="process">공정</option>
+          <option value="eq">설비호기</option>
+          <option value="customer">고객사</option>
+        </select>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span class="tb-label">열(Col):</span>
+        <select id="crossCol" onchange="renderCrossTable()" style="background:rgba(255,255,255,.06);border:1px solid var(--glassb);border-radius:10px;padding:5px 8px;color:var(--txt);font-size:11px;outline:none;">
+          <option value="process" selected>공정</option>
+          <option value="customer">고객사</option>
+          <option value="line">라인</option>
+          <option value="pf">유/무상</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="crossTableWrapper" class="tbl-wrap" style="max-height: 320px; margin-top: 12px; display: none; border: 1px solid rgba(255,255,255,0.05);">
+    <table id="crossTable">
+      <thead><tr><th>-</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
 <div class="grid3">
-  <div class="card"><h3 data-i="ch_mat">🔩 자재별 교체 TOP</h3><div class="card-note" data-i="note_mat">가장 많이 교체되는 자재</div>
+  <div class="card"><h3 data-i="ch_mat">🔩 자재별 교체 TOP</h3>
     <div class="excl-box">
       <div class="excl-chips" id="exclChips_matName"></div>
       <button onclick="clearExcl('matName')" class="clear-btn">전체 지우기</button>
@@ -571,10 +609,14 @@ function onSlicer(){
   F.process=document.getElementById('sl-process').value;
   F.detail=document.getElementById('sl-detail').value;
   F.eq=document.getElementById('sl-eq').value;
+  
+  // 아래 3줄을 새로 추가/수정하여 필터 값을 가져옵니다.
   F.mat=document.getElementById('sl-mat').value;
   F.dtFrom=document.getElementById('dtFrom').value;
   F.dtTo=document.getElementById('dtTo').value;
-  render();
+  
+  render(); // 데이터를 다시 계산하고 차트를 새로 그립니다.
+}
 }
 document.getElementById('search').addEventListener('input',e=>{F.q=e.target.value.toLowerCase();render();});
 
@@ -592,10 +634,22 @@ function filt(){
     if(F.process&&x.process!==F.process)return false;
     if(F.detail&&x.detail!==F.detail)return false;
     if(F.eq&&x.eq!==F.eq)return false;
-    if(F.mat&&x.matName!==F.mat)return false;
-    if(F.dtFrom&&(!x.workDate||fmtDate(x.workDate)<F.dtFrom))return false;
-    if(F.dtTo&&(!x.workDate||fmtDate(x.workDate)>F.dtTo))return false;
+    
+    // [추가] 자재명 필터 체크
+    if(F.mat&&x.matName!==F.mat)return false; 
+    
     if(F.pf&&x.pf!==F.pf)return false;
+    
+    // [추가] 기간(날짜 범위) 필터 체크
+    if(x.workDate){
+      const dateStr = fmtDate(x.workDate); // 데이터의 날짜를 YYYY-MM-DD 형태로 변환
+      if(F.dtFrom && dateStr < F.dtFrom) return false; // 시작일보다 전이면 탈락
+      if(F.dtTo && dateStr > F.dtTo) return false;     // 종료일보다 후면 탈락
+    } else if(F.dtFrom || F.dtTo) {
+      // 실적일자가 없는 데이터인데 기간 필터가 켜져있다면 제외
+      return false; 
+    }
+    
     if(F.q){const s=`${x.matName} ${x.reason} ${x.eq} ${x.model} ${x.freeReason} ${x.matCode}`.toLowerCase();if(!s.includes(F.q))return false;}
     return true;
   });
@@ -612,10 +666,71 @@ function animVal(el,target,suffix){const start=parseFloat(el.dataset.v||0);const
 
 function mkBar(id,labels,data,color,horizontal){
   const ctx=document.getElementById(id);
-  const cfg={type:'bar',data:{labels,datasets:[{data,backgroundColor:color,borderRadius:5}]},
-    options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#94a3b8',font:{size:10},precision:0},grid:{color:'rgba(255,255,255,.05)'}}}}};
-  if(CHARTS[id]){CHARTS[id].data.labels=labels;CHARTS[id].data.datasets[0].data=data;CHARTS[id].options.indexAxis=horizontal?'y':'x';CHARTS[id].update();return;}
+  
+  // 누적 퍼센트(%) 데이터 계산 (파레토 분석 형태)
+  const total = data.reduce((a, b) => a + b, 0);
+  let sum = 0;
+  const lineData = data.map(v => {
+    sum += v;
+    return total > 0 ? Math.round((sum / total) * 100) : 0;
+  });
+
+  const datasets = [
+    {
+      type: 'bar',
+      label: '실적 수량/건수',
+      data: data,
+      backgroundColor: color,
+      borderRadius: 5,
+      yAxisID: 'y'
+    },
+    {
+      type: 'line',
+      label: '누적 점유율(%)',
+      data: lineData,
+      borderColor: '#fbbf24', // 눈에 띄는 주황색 계열 꺾은선
+      borderWidth: 2,
+      pointBackgroundColor: '#fbbf24',
+      tension: 0.2,
+      yAxisID: 'y1'
+    }
+  ];
+
+  // 차트의 축 설정 (수평/수직 차트에 맞춰 보조축 지정)
+  const scales = {
+    x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+    y: { ticks: { color: '#94a3b8', font: { size: 10 }, precision: 0 }, grid: { color: 'rgba(255,255,255,.05)' } }
+  };
+
+  if (horizontal) {
+    // 가로 막대 차트(자재별, 설비별)인 경우 보조 점유율 축은 상단(x1)에 배치
+    scales.x1 = { position: 'top', min: 0, max: 100, ticks: { color: '#fbbf24', font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } };
+    datasets[1].xAxisID = 'x1';
+    delete datasets[1].yAxisID;
+  } else {
+    // 세로 막대 차트(공정별)인 경우 보조 점유율 축은 우측(y1)에 배치
+    scales.y1 = { position: 'right', min: 0, max: 100, ticks: { color: '#fbbf24', font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } };
+  }
+
+  const cfg = {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      indexAxis: horizontal ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 } } } },
+      scales: scales
+    }
+  };
+
+  if(CHARTS[id]){
+    CHARTS[id].data.labels=labels;
+    CHARTS[id].data.datasets[0].data=data;
+    if(CHARTS[id].data.datasets[1]) CHARTS[id].data.datasets[1].data=lineData;
+    CHARTS[id].update();
+    return;
+  }
   CHARTS[id]=new Chart(ctx,cfg);
 }
 function mkDonut(id,labels,data,colors){
@@ -658,6 +773,84 @@ let LAST_F=[];
 function render(){
   const f=filt();
   LAST_F=f;
+  
+  /* ... (기중 중간 코드 생략) ... */
+
+  renderCycleTable(f);
+  renderDetailTable(f);
+  renderCrossTable(); // ◀ 이 줄을 똑같이 추가해 주세요!
+}
+
+// 👈 [추가] 교차 분석 테이블 동적 생성 핵심 로직 함수
+function renderCrossTable() {
+  const f = LAST_F || [];
+  const rowKey = document.getElementById('crossRow').value;
+  const colKey = document.getElementById('crossCol').value;
+  
+  // 현재 데이터셋 내부의 고유한 행/열 항목 추출 및 정렬
+  const rows = Array.from(new Set(f.map(x => x[rowKey] || '—'))).sort();
+  const cols = Array.from(new Set(f.map(x => x[colKey] || '—'))).sort();
+  
+  // 가상의 매트릭스 맵 초기화
+  const matrix = {};
+  rows.forEach(r => { 
+    matrix[r] = {}; 
+    cols.forEach(c => matrix[r][c] = 0); 
+    matrix[r]._total = 0; 
+  });
+  
+  const colTotals = {};
+  cols.forEach(c => colTotals[c] = 0);
+  let grandTotal = 0;
+  
+  // 데이터 매핑 및 교차 집계 (실적 수량 qty 기반 합산)
+  f.forEach(x => {
+    const r = x[rowKey] || '—';
+    const c = x[colKey] || '—';
+    if (matrix[r] && matrix[r][c] !== undefined) {
+      const q = x.qty || 1;
+      matrix[r][c] += q;
+      matrix[r]._total += q;
+      colTotals[c] += q;
+      grandTotal += q;
+    }
+  });
+  
+  const thead = document.getElementById('crossTable').querySelector('thead');
+  const tbody = document.getElementById('crossTable').querySelector('tbody');
+  
+  const rowLabel = document.getElementById('crossRow').options[document.getElementById('crossRow').selectedIndex].text;
+  
+  // 테이블 헤더(열 명칭) 렌더링
+  thead.innerHTML = `<tr>
+    <th style="background:#1a2e3b; color:var(--a1); font-weight:bold;">${rowLabel}</th>
+    ${cols.map(c => `<th class="num">${c}</th>`).join('')}
+    <th class="num" style="background:rgba(45,212,191,0.1); color:var(--a1); font-weight:bold;">행 합계</th>
+  </tr>`;
+  
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="empty">${t('no_data')}</td></tr>`;
+    return;
+  }
+  
+  // 테이블 바디(데이터 그리드) 렌더링
+  let bodyHtml = rows.map(r => {
+    return `<tr>
+      <td><b>${r}</b></td>
+      ${cols.map(c => `<td class="num">${matrix[r][c] > 0 ? matrix[r][c].toLocaleString() : '<span style="opacity:0.2">0</span>'}</td>`).join('')}
+      <td class="num" style="background:rgba(45,212,191,0.04); color:var(--a1); font-weight:bold;">${matrix[r]._total.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  
+  // 하단 열 전체 합계 행 추가
+  bodyHtml += `<tr style="background:rgba(255,255,255,0.07); font-weight:bold; position:sticky; bottom:0;">
+    <td style="color:#fff;">종합 합계 (Total)</td>
+    ${cols.map(c => `<td class="num" style="color:var(--a2)">${colTotals[c].toLocaleString()}</td>`).join('')}
+    <td class="num" style="color:var(--a4); background:rgba(251,191,36,0.1); font-size:13px;">${grandTotal.toLocaleString()}</td>
+  </tr>`;
+  
+  tbody.innerHTML = bodyHtml;
+}
   
   // 전체 옵션 리스트 갱신 및 칩 렌더링
   ALL_OPTS.matName = Array.from(new Set(f.map(x=>x.matName))).filter(Boolean).sort();
@@ -798,6 +991,120 @@ document.addEventListener('click',e=>{
 
 applyLang();
 loadData();
+  // ... 기존 코드의 맨 마지막 부분입니다.
+document.addEventListener('click',e=>{
+  const th=e.target.closest('th[data-k]');
+  if(th){const k=th.dataset.k;if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=(k!=='date');}render();return;}
+  const cth=e.target.closest('th[data-ck]');
+  if(cth){const k=cth.dataset.ck;if(cycSortK===k)cycSortAsc=!cycSortAsc;else{cycSortK=k;cycSortAsc=(k==='name');}render();return;}
+});
+
+applyLang();
+loadData();
+
+// ================= 여기서부터 복사해서 붙여넣으세요 =================
+
+// 1. 접고 펴는 토글 기능 제어 함수
+function toggleCrossTableBody() {
+  const wrapper = document.getElementById('crossTableWrapper');
+  const controls = document.getElementById('crossControls');
+  const arrow = document.getElementById('crossToggleArrow');
+  
+  if (wrapper.style.display === 'none') {
+    wrapper.style.display = 'block';
+    controls.style.display = 'flex';
+    arrow.textContent = '[ 닫기 ▴ ]';
+    renderCrossTable(); 
+  } else {
+    wrapper.style.display = 'none';
+    controls.style.display = 'none';
+    arrow.textContent = '[ 열기 ▾ ]';
+  }
+}
+
+// 2. 히트맵 매트릭스 렌더링 함수
+function renderCrossTable() {
+  const wrapper = document.getElementById('crossTableWrapper');
+  if (!wrapper || wrapper.style.display === 'none') return; 
+
+  const f = LAST_F || [];
+  const rowKey = document.getElementById('crossRow').value;
+  const colKey = document.getElementById('crossCol').value;
+  
+  const rows = Array.from(new Set(f.map(x => x[rowKey] || '—'))).sort();
+  const cols = Array.from(new Set(f.map(x => x[colKey] || '—'))).sort();
+  
+  const matrix = {};
+  rows.forEach(r => { 
+    matrix[r] = {}; 
+    cols.forEach(c => matrix[r][c] = 0); 
+    matrix[r]._total = 0; 
+  });
+  
+  const colTotals = {};
+  cols.forEach(c => colTotals[c] = 0);
+  let grandTotal = 0;
+  let maxCellVal = 0; 
+  
+  f.forEach(x => {
+    const r = x[rowKey] || '—';
+    const c = x[colKey] || '—';
+    if (matrix[r] && matrix[r][c] !== undefined) {
+      const q = x.qty || 1;
+      matrix[r][c] += q;
+      matrix[r]._total += q;
+      colTotals[c] += q;
+      grandTotal += q;
+      if (matrix[r][c] > maxCellVal) maxCellVal = matrix[r][c];
+    }
+  });
+  
+  const crossTable = document.getElementById('crossTable');
+  if(!crossTable) return;
+  const thead = crossTable.querySelector('thead');
+  const tbody = crossTable.querySelector('tbody');
+  const rowLabel = document.getElementById('crossRow').options[document.getElementById('crossRow').selectedIndex].text;
+  
+  thead.innerHTML = `<tr>
+    <th style="background:#111e29; color:var(--a1); font-weight:800; font-size:11px;">${rowLabel}</th>
+    ${cols.map(c => `<th class="num" style="background:#111e29; font-size:11px;">${c}</th>`).join('')}
+    <th class="num" style="background:rgba(45,212,191,0.08); color:var(--a1); font-weight:800; font-size:11px;">합계</th>
+  </tr>`;
+  
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="empty">데이터 없음</td></tr>`;
+    return;
+  }
+  
+  let bodyHtml = rows.map(r => {
+    const cellsHtml = cols.map(c => {
+      const val = matrix[r][c];
+      let style = '';
+      if (val > 0 && maxCellVal > 0) {
+        const ratio = val / maxCellVal;
+        const opacity = 0.02 + (ratio * 0.26);
+        style = `style="background: rgba(45, 212, 191, ${opacity}); font-weight: ${ratio > 0.5 ? '700' : 'normal'}; text-shadow: 0 0 4px rgba(0,0,0,0.5);"`;
+      }
+      return `<td class="num" ${style}>${val > 0 ? val.toLocaleString() : '<span style="opacity:0.15">0</span>'}</td>`;
+    }).join('');
+
+    return `<tr>
+      <td style="background: rgba(255,255,255,0.01);"><b>${r}</b></td>
+      ${cellsHtml}
+      <td class="num" style="background:rgba(45,212,191,0.03); color:var(--a2); font-weight:700;">${matrix[r]._total.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  
+  bodyHtml += `<tr style="background:rgba(255,255,255,0.06); font-weight:700; position:sticky; bottom:0; backdrop-filter:blur(10px);">
+    <td>Total</td>
+    ${cols.map(c => `<td class="num" style="color:var(--a4)">${colTotals[c].toLocaleString()}</td>`).join('')}
+    <td class="num" style="color:#fff; background:rgba(251,191,36,0.15);">${grandTotal.toLocaleString()}</td>
+  </tr>`;
+  
+  tbody.innerHTML = bodyHtml;
+}
+// ================= 여기까지 복사 끝 =================
+
 </script>
 </body>
 </html>
